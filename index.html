@@ -3,269 +3,471 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-<meta name="theme-color" content="#C9B8A8"/>
 <title>Talita Kume · Semijoias</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
-  --tk-bege:#C9B8A8; --tk-bege-dark:#A89888; --tk-nude:#E8DDD4;
-  --tk-creme:#F5F0EB; --tk-creme2:#FAF7F4; --tk-dark:#2C2218;
-  --tk-mid:#6B5B50; --tk-muted:#9A8880; --tk-border:#DDD4C8;
-  --tk-border2:#C9B8A8; --tk-gold:#B8975A; --tk-gold-light:#D4B078;
-  --tk-white:#FDFAF7;
-  --green:#5A7A5A; --green-bg:#EDF2ED;
-  --red:#8A4040; --red-bg:#F5EDED;
-  --orange:#9A6A30; --orange-bg:#F5EDE0;
-  --blue:#405A7A; --blue-bg:#EDF0F5;
-  --radius:14px; --radius-sm:10px;
-  --safe-top:env(safe-area-inset-top,0px);
-  --safe-bot:env(safe-area-inset-bottom,0px);
-  --shadow:0 2px 12px rgba(44,34,24,0.08);
+  --gold:#C9A96E;--gold-l:#DFC08A;--gold-d:#A8885A;
+  --nude:#F0E8DF;--nude2:#FAF6F1;
+  --br:#5C3D2E;--brm:#7A5545;--brl:#A0806A;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
+  --radius:16px;--sh:0 2px 12px rgba(100,65,35,.07);
 }
-html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--tk-creme);color:var(--tk-dark);}
+html,body{height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#C8B09A;}
 
-/* ══ TOAST ══ */
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--tk-dark);color:var(--tk-nude);padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:all 0.25s;z-index:9999;white-space:nowrap;pointer-events:none;}
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(60,35,20,.9);color:#F0E8DF;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:all .25s;z-index:9999;white-space:nowrap;pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ══ LOADING ══ */
-#loading{position:fixed;inset:0;background:var(--tk-creme);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;}
-.loading-logo{width:80px;height:80px;border-radius:50%;background:var(--tk-bege);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:20px;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,184,168,0.4);}50%{box-shadow:0 0 0 16px rgba(201,184,168,0);}}
-.loading-text{font-family:'Playfair Display',serif;font-size:13px;color:var(--tk-white);letter-spacing:2px;text-align:center;line-height:1.5;}
-.loading-sub{font-size:9px;letter-spacing:2px;color:rgba(253,250,247,0.6);margin-top:3px;}
-.loading-msg{font-size:13px;color:var(--tk-muted);letter-spacing:0.5px;}
+/* LOADING */
+#loading{position:fixed;inset:0;background:linear-gradient(160deg,#D6C1A8,#BFA88F);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;}
+.ld-logo{font-family:'Playfair Display',serif;font-size:28px;letter-spacing:8px;color:rgba(255,255,255,.88);animation:ldP 2s ease-in-out infinite;}
+.ld-sub{font-size:10px;letter-spacing:5px;color:rgba(255,255,255,.45);margin-top:6px;text-transform:uppercase;}
+@keyframes ldP{0%,100%{opacity:.6}50%{opacity:1}}
 
-/* ══ ROLE SELECT ══ */
-#role-screen{position:fixed;inset:0;background:var(--tk-creme);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;z-index:500;}
-.role-logo{width:90px;height:90px;border-radius:50%;background:var(--tk-bege);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 4px 20px rgba(44,34,24,0.15);}
-.role-logo-text{font-family:'Playfair Display',serif;font-size:12px;font-weight:400;letter-spacing:2px;color:var(--tk-white);text-align:center;line-height:1.4;}
-.role-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--tk-dark);margin:16px 0 4px;text-align:center;}
-.role-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--tk-muted);margin-bottom:32px;text-align:center;}
-.role-cards{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;}
-.role-card{background:var(--tk-white);border:1.5px solid var(--tk-border);border-radius:var(--radius);padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:all 0.2s;box-shadow:var(--shadow);}
-.role-card:active{background:var(--tk-nude);border-color:var(--tk-bege);}
-.role-icon{width:44px;height:44px;border-radius:12px;background:var(--tk-nude);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.role-info{flex:1;}
-.role-name{font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-dark);}
-.role-desc{font-size:12px;color:var(--tk-muted);margin-top:2px;}
-.role-arrow{color:var(--tk-bege-dark);font-size:18px;}
+/* ══ CAPA — KEYFRAMES ══ */
+@keyframes fadeIn  {from{opacity:0}to{opacity:1}}
+@keyframes fadeUp  {from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatA  {0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes floatB  {0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes starGlow{0%,100%{opacity:.6;filter:drop-shadow(0 0 5px rgba(215,180,100,.55))}
+                    50%{opacity:1;filter:drop-shadow(0 0 14px rgba(215,180,100,1))}}
+@keyframes shimmerBrand{
+  0%,100%{text-shadow:0 2px 24px rgba(80,45,20,.22),0 0 0 rgba(215,180,100,0)}
+  50%{text-shadow:0 2px 24px rgba(80,45,20,.22),0 0 40px rgba(215,180,100,.18)}
+}
+@keyframes bgShimmer{
+  0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+}
+
+/* ── 1. FUNDO ── */
+#role-screen{
+  position:fixed;inset:0;display:none;
+  flex-direction:column;align-items:center;justify-content:space-between;
+  z-index:100;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(232,215,185,.70) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 80%, rgba(185,150,100,.45) 0%, transparent 45%),
+    radial-gradient(ellipse at 55% 50%, rgba(215,195,165,.20) 0%, transparent 60%),
+    linear-gradient(158deg, #DDD0BA 0%, #C9B49E 38%, #BBA48C 68%, #C4AE96 100%);
+}
+/* Brilho sutil sobre o fundo */
+#role-screen::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 72% 12%, rgba(255,240,195,.22) 0%, transparent 30%),
+    radial-gradient(circle at 18% 88%, rgba(255,230,170,.14) 0%, transparent 28%);
+}
+
+.jwl-neck{position:absolute;top:-24px;right:-20px;width:170px;height:240px;z-index:1;pointer-events:none;opacity:.72;animation:floatA 7s ease-in-out infinite;}
+.jwl-ring{position:absolute;bottom:-16px;left:-18px;width:170px;height:190px;z-index:1;pointer-events:none;opacity:.65;animation:floatB 8s 1s ease-in-out infinite;}
+
+/* ── 2. TIPOGRAFIA ── */
+/* Jesus é Rei */
+.r-jesus{
+  position:relative;z-index:3;width:100%;text-align:center;
+  padding-top:calc(var(--safe-t) + 18px);
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:13.5px;letter-spacing:3.5px;
+  color:rgba(255,255,255,.60);
+  text-shadow:0 1px 6px rgba(80,45,20,.25);
+  animation:fadeIn 1.6s ease both;pointer-events:none;user-select:none;
+}
+.r-top{
+  position:relative;z-index:3;display:flex;flex-direction:column;
+  align-items:center;flex:1;justify-content:center;
+  animation:fadeUp 1s .15s cubic-bezier(.22,1,.36,1) both;
+}
+/* Estrela */
+.r-star{font-size:13px;margin-bottom:22px;color:rgba(215,180,100,.85);animation:starGlow 3.5s ease-in-out infinite;}
+/* TALITA KUME — mais espaçado, shimmer dourado */
+.r-brand{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,8.5vw,40px);font-weight:400;
+  letter-spacing:clamp(10px,3vw,15px);text-indent:clamp(10px,3vw,15px);
+  color:#fff;line-height:1;
+  cursor:default;user-select:none;-webkit-user-select:none;
+  animation:shimmerBrand 5s 2s ease-in-out infinite;
+}
+/* Linha SEMIJOIAS */
+.r-subrow{display:flex;align-items:center;gap:14px;margin-top:14px;}
+.r-subline{
+  flex:1;max-width:44px;height:.6px;
+  background:linear-gradient(to right,transparent,rgba(255,255,255,.38));
+}
+.r-subrow .r-subline:last-child{background:linear-gradient(to left,transparent,rgba(255,255,255,.38));}
+.r-subtext{
+  font-family:'Inter',sans-serif;  font-size:13px;font-weight:300;
+  letter-spacing:6px;text-indent:6px;text-transform:uppercase;
+  color:rgba(255,255,255,.55);white-space:nowrap;
+}
+/* Separador */
+.r-sep{font-size:11px;margin:22px 0 17px;color:rgba(215,180,100,.68);animation:starGlow 4.5s .6s ease-in-out infinite;}
+/* Frase */
+.r-tagline{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(17px,4.8vw,20px);
+  color:rgba(255,255,255,.62);
+  white-space:nowrap;letter-spacing:.4px;
+  text-shadow:0 1px 10px rgba(80,45,20,.2);
+  animation:fadeUp 1s .55s ease both;
+}
+
+/* ── 3. BOTÕES ── */
+.r-btns{position:relative;z-index:3;width:100%;padding:0 18px calc(20px + var(--safe-b));display:flex;flex-direction:column;gap:10px;}
+
+.rbtn{
+  width:100%;border:none;border-radius:18px;cursor:pointer;font-family:'Inter',sans-serif;
+  display:flex;align-items:stretch;overflow:hidden;
+  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.rbtn:hover{transform:scale(1.02);}
+.rbtn:active{transform:scale(.975);filter:brightness(.95);}
+
+.rbtn-accent{width:4px;flex-shrink:0;}
+.rbtn-inner{display:flex;align-items:center;gap:14px;padding:15px 18px;flex:1;}
+.rbtn-ico{
+  width:40px;height:40px;border-radius:50%;          /* círculo refinado */
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;
+}
+.rbtn-info{flex:1;min-width:0;}
+.rbtn-name{display:block;font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;line-height:1;}
+.rbtn-desc{display:block;font-size:11px;margin-top:4px;letter-spacing:.3px;line-height:1.3;}
+.rbtn-arrow{font-size:20px;font-weight:300;flex-shrink:0;line-height:1;}
+
+/* Btn 1 — Login Consultora: secundário, limpo */
+.r-btn-login{
+  background:#F8F6F3;
+  border:1px solid rgba(200,180,150,.45);
+  box-shadow:0 4px 16px rgba(100,65,35,.10), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.r-btn-login:hover{box-shadow:0 7px 22px rgba(100,65,35,.16);}
+.r-btn-login .rbtn-accent{background:linear-gradient(180deg,#D4B07A,#B8925A);}
+.r-btn-login .rbtn-name{color:#3E2E20;}
+.r-btn-login .rbtn-desc{color:rgba(62,46,32,.45);}
+.r-btn-login .rbtn-ico{background:rgba(198,164,108,.15);border:1px solid rgba(198,164,108,.25);}
+.r-btn-login .rbtn-arrow{color:rgba(62,46,32,.30);}
+
+/* Btn 2 — Catálogo: DESTAQUE PRINCIPAL com glow dourado */
+.r-btn-cat{
+  background:linear-gradient(135deg,#D4A96A 0%,#B8864A 55%,#C49A60 100%);
+  border:1px solid rgba(220,185,130,.40);
+  box-shadow:0 6px 24px rgba(140,90,30,.35),
+             0 1px 0 rgba(255,235,170,.30) inset,
+             0 0 0 0 rgba(200,160,90,0);
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.r-btn-cat:hover{
+  box-shadow:0 10px 30px rgba(140,90,30,.45),
+             0 1px 0 rgba(255,235,170,.30) inset,
+             0 0 18px rgba(200,160,90,.25);
+}
+.r-btn-cat .rbtn-accent{background:rgba(255,255,255,.32);}
+.r-btn-cat .rbtn-name{color:#fff;letter-spacing:1.8px;}
+.r-btn-cat .rbtn-desc{color:rgba(255,255,255,.70);}
+.r-btn-cat .rbtn-ico{background:rgba(255,255,255,.20);border:1px solid rgba(255,255,255,.28);}
+.r-btn-cat .rbtn-arrow{color:rgba(255,255,255,.60);}
+
+/* Btn 3 — Revendedora: discreto, apenas borda */
+.r-btn-rev{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.25);
+  box-shadow:none;
+  opacity:.85;
+}
+.r-btn-rev:hover{background:rgba(255,255,255,.13);opacity:1;box-shadow:0 4px 14px rgba(80,50,20,.08);}
+.r-btn-rev .rbtn-accent{background:rgba(255,255,255,.18);}
+.r-btn-rev .rbtn-name{color:rgba(255,255,255,.72);letter-spacing:1.3px;}
+.r-btn-rev .rbtn-desc{color:rgba(255,255,255,.38);}
+.r-btn-rev .rbtn-ico{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);}
+.r-btn-rev .rbtn-arrow{color:rgba(255,255,255,.25);}
+
+#modal-cad{z-index:9999 !important;}
+#cad-body > .fg,
+#cad-body > textarea,
+#cad-body > input,
+#cad-body > select,
+#cad-body > label { display:none !important; }
+.rbtn-ico-bare{background:none !important;border:none !important;}
+
+/* Revendedora — mais viva */
+.r-btn-rev{
+  background:rgba(185,140,75,.55);
+  border:1px solid rgba(220,185,120,.65);
+  box-shadow:0 5px 20px rgba(120,80,20,.25);
+  opacity:1;
+}
+.r-btn-rev:hover{background:rgba(195,150,85,.70);box-shadow:0 8px 24px rgba(120,80,20,.35);}
+.r-btn-rev .rbtn-accent{background:linear-gradient(180deg,rgba(255,220,110,.7),rgba(200,155,70,.5));}
+.r-btn-rev .rbtn-name{color:#fff;}
+.r-btn-rev .rbtn-desc{color:rgba(255,240,200,.72);}
+.r-btn-rev .rbtn-ico{background:rgba(255,210,90,.20);border:1px solid rgba(255,210,90,.35);}
+.r-btn-rev .rbtn-arrow{color:rgba(255,235,180,.60);}
+
+/* Estrelinhas animadas */
+@keyframes tw1{0%,100%{opacity:0;transform:scale(0) rotate(0deg)}40%{opacity:1;transform:scale(1) rotate(15deg)}60%{opacity:1}80%{opacity:0;transform:scale(.5) rotate(30deg)}}
+@keyframes tw2{0%,100%{opacity:0;transform:scale(0) rotate(0deg)}30%{opacity:0}60%{opacity:1;transform:scale(1) rotate(-10deg)}80%{opacity:1}95%{opacity:0}}
+@keyframes tw3{0%,100%{opacity:0;transform:scale(0)}20%{opacity:0}50%{opacity:1;transform:scale(1.1)}70%{opacity:1}90%{opacity:0;transform:scale(.4)}}
+.sparkle-wrap{display:inline-flex;align-items:center;gap:5px;position:relative;}
+.sp{display:inline-block;font-size:10px;line-height:1;}
+.sp1{color:rgba(255,235,140,.9);animation:tw1 2.4s 0s ease-in-out infinite;}
+.sp2{color:rgba(255,255,190,.8);animation:tw2 2.4s .5s ease-in-out infinite;font-size:7px;}
+.sp3{color:rgba(255,220,100,.85);animation:tw3 2.4s 1s ease-in-out infinite;font-size:9px;}
+  position:relative;z-index:3;text-align:center;
+  font-size:10px;letter-spacing:1.5px;font-weight:300;
+  color:rgba(255,255,255,.28);font-family:'Inter',sans-serif;
+  padding-bottom:calc(8px + var(--safe-b));margin-top:-2px;
+}
+
+/* ══ MODAL — REGRA CRÍTICA ══ */
+.modal-overlay{
+  display:none;         /* fechado por padrão */
+  position:fixed;
+  inset:0;
+  background:rgba(60,35,20,.45);
+  z-index:500;
+  align-items:flex-end;
+  justify-content:center;
+}
+.modal-overlay.open{
+  display:flex;         /* abre quando tem classe .open */
+}
+.modal{background:#fff;border-radius:22px 22px 0 0;padding:22px 18px;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-b));}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;color:var(--br);}
+.modal-close{float:right;background:none;border:none;font-size:24px;color:var(--brl);cursor:pointer;margin-top:-4px;}
 
 /* ══ LOGIN ══ */
-#login-screen{position:fixed;inset:0;background:var(--tk-creme);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;z-index:500;}
-.login-back{align-self:flex-start;background:none;border:none;color:var(--tk-muted);font-size:13px;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
-.login-card{background:var(--tk-white);border:1px solid var(--tk-border);border-radius:20px;padding:24px 22px;width:100%;max-width:340px;box-shadow:var(--shadow);}
-.login-role-badge{display:inline-block;padding:4px 12px;border-radius:20px;background:var(--tk-nude);color:var(--tk-bege-dark);font-size:11px;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:16px;}
-.login-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--tk-muted);margin-bottom:6px;display:block;font-weight:500;}
-.login-input{width:100%;padding:12px 14px;margin-bottom:13px;border:1.5px solid var(--tk-border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--tk-dark);background:var(--tk-creme2);outline:none;}
-.login-input:focus{border-color:var(--tk-bege);}
-.btn-login{width:100%;padding:13px;background:var(--tk-bege);color:var(--tk-white);border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
-.btn-login:active{background:var(--tk-bege-dark);}
-.login-hint{font-size:11px;color:var(--tk-muted);text-align:center;margin-top:14px;line-height:1.7;}
+#login-screen{position:fixed;inset:0;background:var(--nude2);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;z-index:500;}
+.login-back{align-self:flex-start;background:none;border:none;color:var(--brl);font-size:13px;cursor:pointer;margin-bottom:18px;display:flex;align-items:center;gap:6px;}
+.login-card{background:#fff;border:1px solid rgba(200,175,145,.3);border-radius:22px;padding:26px 22px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(100,65,35,.10);}
+.login-badge{display:inline-block;padding:4px 14px;border-radius:20px;background:var(--nude);color:var(--brl);font-size:11px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:18px;}
+.lbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--brl);margin-bottom:6px;display:block;font-weight:500;}
+.inp{width:100%;padding:12px 14px;margin-bottom:13px;border:1.5px solid rgba(200,175,145,.4);border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--br);background:var(--nude2);outline:none;}
+.inp:focus{border-color:var(--gold);}
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
 
-/* ══ APP SHELL ══ */
-#app{display:none;flex-direction:column;height:100%;}
-.app-header{background:var(--tk-white);padding:calc(var(--safe-top) + 10px) 18px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--tk-border);box-shadow:0 1px 6px rgba(44,34,24,0.06);}
+/* ══ APP ══ */
+#app{display:none;flex-direction:column;height:100%;background:#F7F2ED;}
+.app-header{background:#fff;padding:calc(var(--safe-t) + 10px) 18px 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid rgba(200,175,145,.25);box-shadow:0 1px 8px rgba(100,65,35,.06);}
 .hdr-logo{display:flex;align-items:center;gap:10px;}
-.hdr-circle{width:34px;height:34px;border-radius:50%;background:var(--tk-bege);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.hdr-initial{font-family:'Playfair Display',serif;font-size:13px;color:var(--tk-white);font-weight:500;letter-spacing:1px;}
-.hdr-brand{font-family:'Playfair Display',serif;font-size:15px;color:var(--tk-dark);letter-spacing:0.5px;line-height:1.1;}
-.hdr-brand span{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:300;color:var(--tk-muted);letter-spacing:1px;text-transform:uppercase;display:block;}
+.hdr-circle{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;}
+.hdr-initial{font-family:'Playfair Display',serif;font-size:13px;color:#fff;font-weight:500;letter-spacing:1px;}
+.hdr-brand{font-family:'Playfair Display',serif;font-size:15px;color:var(--br);letter-spacing:.5px;line-height:1.1;}
+.hdr-brand span{font-family:'Inter',sans-serif;font-size:10px;font-weight:300;color:var(--brl);letter-spacing:1px;text-transform:uppercase;display:block;}
 .hdr-right{display:flex;align-items:center;gap:8px;}
-.hdr-user{font-size:12px;color:var(--tk-mid);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hdr-role{font-size:9px;color:var(--tk-bege-dark);text-transform:uppercase;letter-spacing:0.8px;}
-.btn-logout{font-size:11px;color:var(--tk-muted);background:none;border:none;cursor:pointer;padding:4px;}
-.app-body{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--tk-creme);-webkit-overflow-scrolling:touch;}
+.hdr-user{font-size:12px;color:var(--brm);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hdr-role{font-size:9px;color:var(--gold-d);text-transform:uppercase;letter-spacing:.8px;}
+.btn-logout{font-size:11px;color:var(--brl);background:none;border:none;cursor:pointer;padding:4px;}
+.app-body{flex:1;overflow-y:auto;overflow-x:hidden;background:#F7F2ED;-webkit-overflow-scrolling:touch;}
 
-/* ══ TAB BAR ══ */
-.tab-bar{background:var(--tk-white);display:flex;flex-shrink:0;border-top:1px solid var(--tk-border);padding-bottom:var(--safe-bot);box-shadow:0 -1px 8px rgba(44,34,24,0.06);}
-.tab{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;letter-spacing:0.5px;color:var(--tk-muted);cursor:pointer;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'DM Sans',sans-serif;}
+/* TAB BAR */
+.tab-bar{background:#fff;display:flex;flex-shrink:0;border-top:1px solid rgba(200,175,145,.22);padding-bottom:var(--safe-b);box-shadow:0 -1px 10px rgba(100,65,35,.06);}
+.tab{flex:1;padding:10px 4px 8px;text-align:center;font-size:10px;letter-spacing:.4px;color:var(--brl);cursor:pointer;border:none;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:'Inter',sans-serif;transition:color .2s;}
 .tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;}
-.tab.active{color:var(--tk-bege-dark);}
+.tab.active{color:var(--gold-d);}
 
-/* ══ SCREENS ══ */
-.screen{display:none;padding:16px 16px 28px;}
+/* SCREENS */
+.screen{display:none;padding:16px 16px 32px;}
 .screen.active{display:block;}
-
-/* ══ COMPONENTS ══ */
-.card{background:var(--tk-white);border:1px solid var(--tk-border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
-.card-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-dark);margin-bottom:12px;letter-spacing:0.3px;}
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.sec-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--tk-dark);}
+.card{background:#fff;border:1px solid rgba(200,175,145,.25);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--sh);}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--br);margin-bottom:12px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--br);}
 .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-.metric{background:var(--tk-white);border:1px solid var(--tk-border);border-radius:var(--radius-sm);padding:13px 6px;text-align:center;box-shadow:var(--shadow);}
-.metric-val{font-family:'Playfair Display',serif;font-size:19px;color:var(--tk-bege-dark);}
-.metric-label{font-size:9px;color:var(--tk-muted);margin-top:4px;letter-spacing:0.8px;text-transform:uppercase;}
-.form-group{margin-bottom:12px;}
-.form-label{font-size:11px;font-weight:500;color:var(--tk-muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
-.form-input,.form-select,.form-textarea{width:100%;padding:11px 13px;border:1.5px solid var(--tk-border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--tk-dark);background:var(--tk-creme2);outline:none;-webkit-appearance:none;}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--tk-bege);}
-.form-textarea{resize:vertical;min-height:70px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.btn{padding:13px 20px;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;}
-.btn-primary{background:var(--tk-bege);color:var(--tk-white);width:100%;}
-.btn-primary:active{background:var(--tk-bege-dark);}
-.btn-sm{padding:7px 13px;font-size:12px;border-radius:8px;}
-.btn-outline{background:var(--tk-creme2);border:1.5px solid var(--tk-border2);color:var(--tk-mid);}
-.btn-danger{background:none;border:1px solid #DEC8C8;color:var(--red);font-size:11px;}
-.btn-green{background:var(--green-bg);color:var(--green);border:none;}
-.btn-gold{background:linear-gradient(135deg,var(--tk-gold),var(--tk-gold-light));color:var(--tk-white);border:none;}
-.search-wrap{position:relative;margin-bottom:12px;}
-.search-wrap input{width:100%;padding:10px 12px 10px 36px;border:1.5px solid var(--tk-border);border-radius:var(--radius-sm);font-size:14px;color:var(--tk-dark);background:var(--tk-white);outline:none;}
-.search-wrap input:focus{border-color:var(--tk-bege);}
-.search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
-.list-item{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid var(--tk-border);}
-.list-item:last-child{border-bottom:none;}
-.item-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--tk-nude);}
-.item-img{width:38px;height:38px;border-radius:10px;object-fit:cover;flex-shrink:0;}
-.item-info{flex:1;min-width:0;}
-.item-name{font-size:14px;font-weight:500;color:var(--tk-dark);}
-.item-sub{font-size:11px;color:var(--tk-muted);margin-top:2px;}
-.item-right{text-align:right;flex-shrink:0;}
-.item-price{font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-bege-dark);}
+.metric{background:#fff;border:1px solid rgba(200,175,145,.25);border-radius:12px;padding:14px 6px;text-align:center;box-shadow:var(--sh);}
+.metric-val{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold-d);}
+.metric-lbl{font-size:9px;color:var(--brl);margin-top:4px;letter-spacing:.8px;text-transform:uppercase;}
+.fg{margin-bottom:12px;}
+.fl{font-size:10.5px;font-weight:500;color:var(--brl);letter-spacing:.8px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.fi,.fs,.ft{width:100%;padding:11px 13px;border:1.5px solid rgba(200,175,145,.35);border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--br);background:#FDFAF7;outline:none;-webkit-appearance:none;}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--gold);}
+.ft{resize:vertical;min-height:70px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn{padding:13px 20px;border-radius:12px;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;border:none;}
+.btn-p{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;width:100%;box-shadow:0 6px 20px rgba(180,140,70,.22);}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:9px;}
+.btn-o{background:#FDFAF7;border:1.5px solid rgba(200,175,145,.45);color:var(--brm);}
+.btn-d{background:none;border:1px solid rgba(180,130,130,.4);color:#8A4040;font-size:11px;}
+.swrap{position:relative;margin-bottom:12px;}
+.swrap input{width:100%;padding:10px 12px 10px 36px;border:1.5px solid rgba(200,175,145,.3);border-radius:12px;font-size:14px;color:var(--br);background:#fff;outline:none;font-family:'Inter',sans-serif;}
+.swrap input:focus{border-color:var(--gold);}
+.sico{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
+.li{display:flex;align-items:flex-start;gap:11px;padding:12px 0;border-bottom:1px solid rgba(200,175,145,.18);}
+.li:last-child{border-bottom:none;}
+.li-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--nude);}
+.li-img{width:38px;height:38px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+.li-info{flex:1;min-width:0;}
+.li-name{font-size:14px;font-weight:500;color:var(--br);}
+.li-sub{font-size:11px;color:var(--brl);margin-top:2px;}
+.li-r{text-align:right;flex-shrink:0;}
+.li-price{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-d);}
 .badge{display:inline-block;padding:3px 9px;border-radius:8px;font-size:10px;font-weight:500;}
-.badge-ok{background:var(--green-bg);color:var(--green);}
-.badge-low{background:var(--orange-bg);color:var(--orange);}
-.badge-out{background:var(--red-bg);color:var(--red);}
-.badge-sale{background:var(--blue-bg);color:var(--blue);}
-.badge-consig{background:#F3EDF5;color:#6A4A7A;}
-.badge-gold{background:linear-gradient(135deg,var(--tk-gold),var(--tk-gold-light));color:white;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,34,24,0.45);z-index:200;align-items:flex-end;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--tk-white);border-radius:22px 22px 0 0;padding:22px 18px;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bot));}
-.modal-title{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:16px;color:var(--tk-dark);}
-.modal-close{float:right;background:none;border:none;font-size:24px;color:var(--tk-muted);cursor:pointer;margin-top:-4px;}
-.empty{text-align:center;padding:40px 16px;}
-.empty-ico{font-size:38px;margin-bottom:10px;opacity:0.3;}
-.empty-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--tk-muted);margin-bottom:6px;}
-.empty-sub{font-size:12px;color:var(--tk-muted);opacity:0.7;}
+.b-ok{background:#EDF2ED;color:#5A7A5A;}
+.b-low{background:#F5EDE0;color:#9A6A30;}
+.b-out{background:#F5EDED;color:#8A4040;}
+.b-sale{background:#EDF0F5;color:#405A7A;}
+.b-consig{background:#F3EDF5;color:#6A4A7A;}
+.b-gold{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;}
+.empty{text-align:center;padding:44px 16px;}
+.empty-ico{font-size:36px;margin-bottom:10px;opacity:.25;}
+.empty-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--brl);margin-bottom:6px;}
+.empty-sub{font-size:12px;color:var(--brl);opacity:.6;}
 .qty-ctrl{display:flex;align-items:center;gap:10px;}
-.qty-btn{width:34px;height:34px;border-radius:8px;border:1.5px solid var(--tk-border);background:var(--tk-creme2);color:var(--tk-bege-dark);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.qty-num{width:32px;text-align:center;font-size:17px;font-weight:500;}
-
-/* ══ CATÁLOGO GRID ══ */
-.catalogo-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.prod-card{background:var(--tk-white);border:1px solid var(--tk-border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;}
-.prod-card-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--tk-nude);display:flex;align-items:center;justify-content:center;font-size:36px;}
-.prod-card-img img{width:100%;height:100%;object-fit:cover;}
-.prod-card-body{padding:10px 12px 12px;}
-.prod-card-name{font-family:'Playfair Display',serif;font-size:14px;color:var(--tk-dark);line-height:1.3;}
-.prod-card-code{font-size:10px;color:var(--tk-muted);margin-top:2px;letter-spacing:0.5px;}
-.prod-card-price{font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-gold);margin-top:6px;}
-.prod-card-actions{display:flex;gap:6px;margin-top:8px;}
-.prod-card-btn{flex:1;padding:7px;border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;}
-
-/* ══ FOTO UPLOAD ══ */
-.foto-upload-area{border:2px dashed var(--tk-border2);border-radius:var(--radius-sm);padding:20px;text-align:center;cursor:pointer;background:var(--tk-creme2);margin-bottom:12px;}
-.foto-upload-area:hover{border-color:var(--tk-bege);background:var(--tk-nude);}
-.foto-preview{width:100%;max-height:200px;object-fit:cover;border-radius:var(--radius-sm);margin-bottom:8px;}
-.foto-upload-ico{font-size:28px;margin-bottom:6px;}
-.foto-upload-text{font-size:13px;color:var(--tk-muted);}
-.foto-upload-sub{font-size:11px;color:var(--tk-muted);opacity:0.7;margin-top:3px;}
-
-/* ══ TABS INLINE ══ */
+.qty-btn{width:34px;height:34px;border-radius:9px;border:1.5px solid rgba(200,175,145,.4);background:#FDFAF7;color:var(--gold-d);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-num{width:32px;text-align:center;font-size:17px;font-weight:500;color:var(--br);}
 .tab-pills{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
-.tab-pill{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--tk-border);background:var(--tk-white);color:var(--tk-muted);white-space:nowrap;flex-shrink:0;}
-.tab-pill.active{background:var(--tk-bege);color:var(--tk-white);border-color:var(--tk-bege);}
-
-/* ══ PRODUTO DETAIL MODAL ══ */
-.prod-detail-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--radius);margin-bottom:16px;background:var(--tk-nude);display:flex;align-items:center;justify-content:center;font-size:60px;}
-.prod-detail-img img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius);}
-.prod-detail-name{font-family:'Playfair Display',serif;font-size:22px;color:var(--tk-dark);}
-.prod-detail-code{font-size:12px;color:var(--tk-muted);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
-.prod-detail-price{font-family:'Playfair Display',serif;font-size:26px;color:var(--tk-gold);margin:12px 0;}
-.prod-detail-desc{font-size:14px;color:var(--tk-mid);line-height:1.6;margin-bottom:16px;}
-.prod-detail-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
-.prod-tag{padding:4px 12px;border-radius:20px;background:var(--tk-nude);color:var(--tk-bege-dark);font-size:11px;border:1px solid var(--tk-border2);}
-.share-btns{display:flex;gap:8px;}
-.share-btn{flex:1;padding:11px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;}
-
-/* ══ GESTORA — CONSULTORAS ══ */
-.consultora-card{background:var(--tk-white);border:1px solid var(--tk-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
-.consultora-card-hdr{display:flex;align-items:center;gap:12px;}
-.consultora-av{width:42px;height:42px;border-radius:50%;background:var(--tk-bege);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-white);flex-shrink:0;}
-.consultora-info{flex:1;}
-.consultora-name{font-size:15px;font-weight:500;color:var(--tk-dark);}
-.consultora-sub{font-size:11px;color:var(--tk-muted);margin-top:2px;}
-.consultora-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px;}
-.c-stat{text-align:center;background:var(--tk-creme2);border-radius:8px;padding:8px 4px;}
-.c-stat-val{font-family:'Playfair Display',serif;font-size:16px;color:var(--tk-bege-dark);}
-.c-stat-label{font-size:9px;color:var(--tk-muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
-
+.tab-pill{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid rgba(200,175,145,.35);background:#fff;color:var(--brl);white-space:nowrap;flex-shrink:0;transition:all .2s;}
+.tab-pill.active{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:#fff;border-color:transparent;}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pc{background:#fff;border:1px solid rgba(200,175,145,.25);border-radius:var(--radius);overflow:hidden;box-shadow:var(--sh);cursor:pointer;}
+.pc-img{width:100%;aspect-ratio:1;background:var(--nude);display:flex;align-items:center;justify-content:center;font-size:36px;}
+.pc-img img{width:100%;height:100%;object-fit:cover;}
+.pc-body{padding:10px 12px 12px;}
+.pc-name{font-family:'Playfair Display',serif;font-size:14px;color:var(--br);line-height:1.3;}
+.pc-code{font-size:10px;color:var(--brl);margin-top:2px;}
+.pc-price{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold-d);margin-top:6px;}
+.cav{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-l));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:16px;color:#fff;flex-shrink:0;}
+.foto-area{border:2px dashed rgba(200,175,145,.5);border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#FDFAF7;margin-bottom:12px;}
+.ficha-card{background:#fff;border:1px solid rgba(200,175,145,.25);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--sh);}
+.ficha-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.fi-box{background:#FDFAF7;border-radius:9px;padding:9px 11px;}
+.fi-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--brl);margin-bottom:3px;}
+.fi-val{font-size:12.5px;color:var(--br);font-weight:500;}
+.fdocs{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:rgba(198,164,108,.07);border-radius:10px;border:1px solid rgba(198,164,108,.18);}
+.fdocs span{font-size:11px;color:var(--brm);}
+.sdots{display:flex;gap:6px;margin-top:14px;}
+.sdot{width:28px;height:4px;border-radius:2px;background:rgba(255,255,255,.30);transition:all .3s;}
+.sdot.active{background:#fff;width:36px;}
+.step-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--br);margin-bottom:16px;}
+.info-box{background:rgba(198,164,108,.10);border:1px solid rgba(198,164,108,.25);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--brl);line-height:1.6;margin-bottom:16px;}
+.rg,.cg{display:flex;flex-direction:column;gap:7px;}
+.ro,.co{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:10px;border:1.5px solid rgba(200,175,145,.3);background:#FDFAF7;cursor:pointer;font-size:13px;color:var(--br);transition:border-color .15s;}
+.ro:has(input:checked),.co:has(input:checked){border-color:var(--gold);background:rgba(198,164,108,.09);}
+.ro input,.co input{accent-color:var(--gold);flex-shrink:0;}
 ::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-thumb{background:var(--tk-border);border-radius:4px;}
+::-webkit-scrollbar-thumb{background:rgba(200,175,145,.4);border-radius:4px;}
 </style>
 </head>
 <body>
 
 <div id="toast"></div>
 
-<!-- LOADING -->
 <div id="loading">
-  <div class="loading-logo">
-    <div class="loading-text">TALITA<br/>KUME</div>
-    <div class="loading-sub">Semijoias</div>
-  </div>
-  <div class="loading-msg">Carregando...</div>
+  <div class="ld-logo">TALITA KUME</div>
+  <div class="ld-sub">Semijoias</div>
 </div>
 
-<!-- ROLE SELECT -->
+<!-- ══ CAPA ══ -->
 <div id="role-screen">
-  <div class="role-logo">
-    <div class="role-logo-text" style="font-family:'Playfair Display',serif;font-size:12px;letter-spacing:2px;color:white;text-align:center;line-height:1.4;">TALITA<br/>KUME</div>
+  <div class="r-jesus">✦ &nbsp;Jesus é Rei&nbsp; ✦</div>
+
+  <div class="r-top">
+    <span class="r-star">✦</span>
+    <div class="r-brand" id="brand-tap">TALITA KUME</div>
+    <div class="r-subrow">
+      <span class="r-subline"></span><span class="r-subtext">Semijoias</span><span class="r-subline"></span>
+    </div>
+    <div class="r-sep">✦</div>
+    <div class="r-tagline">Aqui os seus sonhos se transformam <span class="sparkle-wrap"><span class="sp sp1">✦</span><span class="sp sp2">✦</span><span class="sp sp3">✦</span></span></div>
   </div>
-  <div class="role-title">Talita Kume</div>
-  <div class="role-sub">Semijoias sofisticadas e atemporais</div>
-  <div class="role-cards">
-    <div class="role-card" onclick="selectRole('gestora')">
-      <div class="role-icon">👑</div>
-      <div class="role-info">
-        <div class="role-name">Gestora</div>
-        <div class="role-desc">Painel completo · produtos · consultoras</div>
+
+  <div class="r-btns">
+    <button class="rbtn r-btn-login" onclick="doLogin()">
+      <div class="rbtn-accent"></div>
+      <div class="rbtn-inner">
+        <div class="rbtn-ico rbtn-ico-bare">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M6 3h12l4 6L12 21 2 9z" stroke="rgba(180,140,85,1)" stroke-width="1.5" stroke-linejoin="round" fill="rgba(198,164,108,.20)"/>
+            <path d="M2 9h20" stroke="rgba(180,140,85,.55)" stroke-width="1" stroke-linecap="round"/>
+            <path d="M9.5 3 6 9l6 12M14.5 3 18 9l-6 12" stroke="rgba(180,140,85,.45)" stroke-width=".9" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="rbtn-info"><span class="rbtn-name">Login Consultora</span></div>
+        <span class="rbtn-arrow">›</span>
       </div>
-      <div class="role-arrow">›</div>
-    </div>
-    <div class="role-card" onclick="selectRole('consultora')">
-      <div class="role-icon">💎</div>
-      <div class="role-info">
-        <div class="role-name">Consultora</div>
-        <div class="role-desc">Catálogo · maleta · vendas</div>
+    </button>
+
+    <button class="rbtn r-btn-cat" onclick="doCatalogo()">
+      <div class="rbtn-accent"></div>
+      <div class="rbtn-inner">
+        <div class="rbtn-ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M2 6h8a2 2 0 0 1 2 2v11a2 2 0 0 0-2-2H2z" stroke="rgba(255,255,255,.92)" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M22 6h-8a2 2 0 0 0-2 2v11a2 2 0 0 1 2-2h8z" stroke="rgba(255,255,255,.92)" stroke-width="1.4" stroke-linejoin="round"/>
+            <line x1="5" y1="10" x2="9" y2="10" stroke="rgba(255,255,255,.55)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="5" y1="13" x2="9" y2="13" stroke="rgba(255,255,255,.55)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="5" y1="16" x2="8" y2="16" stroke="rgba(255,255,255,.35)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="15" y1="10" x2="19" y2="10" stroke="rgba(255,255,255,.55)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="15" y1="13" x2="19" y2="13" stroke="rgba(255,255,255,.55)" stroke-width="1" stroke-linecap="round"/>
+            <line x1="15" y1="16" x2="18" y2="16" stroke="rgba(255,255,255,.35)" stroke-width="1" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="rbtn-info">
+          <span class="rbtn-name">Catálogo</span>
+          <span class="rbtn-desc">Conheça nossas semijoias</span>
+        </div>
+        <span class="rbtn-arrow">›</span>
       </div>
-      <div class="role-arrow">›</div>
-    </div>
-    <div class="role-card" onclick="selectRole('catalogo')">
-      <div class="role-icon">🛍️</div>
-      <div class="role-info">
-        <div class="role-name">Ver Catálogo</div>
-        <div class="role-desc">Explorar produtos · entrar em contato</div>
+    </button>
+
+    <button class="rbtn r-btn-rev" onclick="
+      event.stopPropagation();
+      document.getElementById('cs1').style.display='block';
+      document.getElementById('cs2').style.display='none';
+      document.getElementById('cs3').style.display='none';
+      document.getElementById('cs-ok').style.display='none';
+      document.getElementById('sd1').className='sdot active';
+      document.getElementById('sd2').className='sdot';
+      document.getElementById('sd3').className='sdot';
+      document.getElementById('modal-cad').style.cssText='display:flex !important;z-index:9999;position:fixed;inset:0;align-items:flex-end;justify-content:center;background:rgba(60,35,20,.45);';
+    ">
+      <div class="rbtn-accent"></div>
+      <div class="rbtn-inner">
+        <div class="rbtn-ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <!-- Coroa -->
+            <path d="M7.5 9L9.5 6.5l2.5 2 2.5-2 2 2.5V11H7.5z" stroke="rgba(255,210,90,.95)" stroke-width="1.2" stroke-linejoin="round" fill="rgba(255,200,70,.22)"/>
+            <circle cx="9.5" cy="6.5" r=".7" fill="rgba(255,210,90,.9)"/>
+            <circle cx="14.5" cy="6.5" r=".7" fill="rgba(255,210,90,.9)"/>
+            <circle cx="12" cy="5.2" r=".7" fill="rgba(255,210,90,.9)"/>
+            <!-- Pessoa -->
+            <circle cx="12" cy="14" r="3.2" stroke="rgba(255,220,160,.88)" stroke-width="1.4"/>
+            <path d="M5.5 22c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6" stroke="rgba(255,220,160,.88)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="rbtn-info">
+          <span class="rbtn-name">Quero ser Revendedora</span>
+          <span class="rbtn-desc">Faça parte do nosso time de sucesso</span>
+        </div>
+        <span class="rbtn-arrow">›</span>
       </div>
-      <div class="role-arrow">›</div>
-    </div>
+    </button>
   </div>
+
+  <div class="r-footer">🔒 &nbsp;Ambiente seguro e exclusivo</div>
 </div>
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <button class="login-back" onclick="goBack()">← Voltar</button>
+  <button class="login-back" onclick="showScreen('role')">← Voltar</button>
   <div class="login-card">
-    <div class="login-role-badge" id="login-role-badge">Gestora</div>
-    <div id="login-fields-gestora">
-      <label class="login-label">Senha de acesso</label>
-      <input class="login-input" id="login-senha-gestora" type="password" placeholder="Senha da gestora"/>
+    <div class="login-badge" id="login-badge">Consultora</div>
+    <div id="lf-gestora" style="display:none;">
+      <label class="lbl">Senha de acesso</label>
+      <input class="inp" id="l-senha-g" type="password" placeholder="Senha da gestora"/>
       <button class="btn-login" onclick="loginGestora()">Entrar →</button>
     </div>
-    <div id="login-fields-consultora" style="display:none;">
-      <label class="login-label">Seu nome</label>
-      <input class="login-input" id="login-nome-c" placeholder="Ex: Ana Lima" autocomplete="name"/>
-      <label class="login-label">Sua cidade</label>
-      <input class="login-input" id="login-cidade-c" placeholder="Ex: São Paulo"/>
-      <label class="login-label">Senha</label>
-      <input class="login-input" id="login-senha-c" type="password" placeholder="Senha fornecida pela gestora"/>
+    <div id="lf-consultora">
+      <label class="lbl">Seu nome</label>
+      <input class="inp" id="l-nome-c" placeholder="Ex: Ana Lima" autocomplete="name"/>
+      <label class="lbl">Senha</label>
+      <input class="inp" id="l-senha-c" type="password" placeholder="Senha fornecida pela gestora"/>
       <button class="btn-login" onclick="loginConsultora()">Entrar →</button>
     </div>
-    <div class="login-hint" id="login-hint">Acesso exclusivo para a gestora.</div>
   </div>
 </div>
 
@@ -274,953 +476,687 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   <header class="app-header">
     <div class="hdr-logo">
       <div class="hdr-circle"><div class="hdr-initial">TK</div></div>
-      <div class="hdr-brand">Talita Kume <span id="hdr-role-label">Semijoias</span></div>
+      <div class="hdr-brand">Talita Kume <span id="hdr-role-lbl">Semijoias</span></div>
     </div>
     <div class="hdr-right">
-      <div>
-        <div class="hdr-user" id="hdr-user"></div>
-        <div class="hdr-role" id="hdr-role-badge"></div>
-      </div>
+      <div><div class="hdr-user" id="hdr-user"></div><div class="hdr-role" id="hdr-role-badge"></div></div>
       <button class="btn-logout" onclick="doLogout()">Sair</button>
     </div>
   </header>
-
   <div class="app-body">
-
-    <!-- ══ GESTORA SCREENS ══ -->
-
-    <!-- G: PAINEL -->
     <div class="screen" id="screen-g-painel">
       <div style="padding:4px 0 16px;">
-        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--tk-dark);">Olá, <em style="color:var(--tk-bege-dark);font-style:italic;">Talita</em> 👑</div>
-        <div style="font-size:12px;color:var(--tk-muted);margin-top:2px;">Painel da gestora</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--br);">Olá, <em style="color:var(--gold-d);">Talita</em> 👑</div>
+        <div style="font-size:12px;color:var(--brl);margin-top:2px;">Painel da gestora</div>
       </div>
-      <div class="metrics" id="g-metrics">
-        <div class="metric"><div class="metric-val" id="gm-produtos">—</div><div class="metric-label">Produtos</div></div>
-        <div class="metric"><div class="metric-val" id="gm-consultoras">—</div><div class="metric-label">Consultoras</div></div>
-        <div class="metric"><div class="metric-val" id="gm-vendas">—</div><div class="metric-label">Vendas</div></div>
+      <div class="metrics">
+        <div class="metric"><div class="metric-val" id="gm-p">—</div><div class="metric-lbl">Produtos</div></div>
+        <div class="metric"><div class="metric-val" id="gm-c">—</div><div class="metric-lbl">Consultoras</div></div>
+        <div class="metric"><div class="metric-val" id="gm-v">—</div><div class="metric-lbl">Vendas</div></div>
       </div>
       <div class="card">
         <div class="card-title">Ações rápidas</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="btn btn-primary" onclick="goTabG('catalogo')">+ Adicionar produto ao catálogo</button>
-          <button class="btn btn-outline btn-sm" onclick="goTabG('consultoras')">Gerenciar consultoras</button>
-          <button class="btn btn-outline btn-sm" onclick="goTabG('maletas')">Despachar maleta</button>
+          <button class="btn btn-p" onclick="goTabG('catalogo')">+ Adicionar produto</button>
+          <button class="btn btn-sm btn-o" onclick="goTabG('consultoras')">Gerenciar consultoras</button>
+          <button class="btn btn-sm btn-o" onclick="goTabG('maletas')">Despachar maleta</button>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">Últimas vendas</div>
-        <div id="g-recent-vendas"></div>
-      </div>
+      <div class="card"><div class="card-title">Últimas vendas</div><div id="g-rec-v"></div></div>
     </div>
-
-    <!-- G: CATÁLOGO (gestão) -->
     <div class="screen" id="screen-g-catalogo">
       <div class="sec-hdr">
         <div class="sec-title">Catálogo</div>
-        <button class="btn btn-sm btn-primary" onclick="openModalProd()" style="width:auto;padding:8px 16px;">+ Produto</button>
+        <button class="btn btn-sm btn-p" onclick="openModalProd()" style="width:auto;padding:8px 16px;">+ Produto</button>
       </div>
-      <div class="search-wrap">
-        <span class="search-ico">🔍</span>
-        <input placeholder="Buscar por nome ou código..." oninput="renderGCatalogo(this.value)" id="g-cat-search"/>
-      </div>
-      <div id="g-catalogo-list"></div>
+      <div class="swrap"><span class="sico">🔍</span><input placeholder="Buscar..." oninput="renderGCat(this.value)" id="g-cat-s"/></div>
+      <div id="g-cat-list"></div>
     </div>
-
-    <!-- G: CONSULTORAS -->
     <div class="screen" id="screen-g-consultoras">
       <div class="sec-hdr">
         <div class="sec-title">Consultoras</div>
-        <button class="btn btn-sm btn-primary" onclick="openModalConsultora()" style="width:auto;padding:8px 16px;">+ Nova</button>
+        <button class="btn btn-sm btn-p" onclick="openModalCons()" style="width:auto;padding:8px 16px;">+ Nova</button>
       </div>
-      <div id="g-consultoras-list"></div>
+      <div id="g-cons-list"></div>
     </div>
-
-    <!-- G: MALETAS -->
     <div class="screen" id="screen-g-maletas">
       <div class="sec-title" style="margin-bottom:14px;">Despachar Maleta</div>
       <div class="card">
-        <div class="form-group">
-          <label class="form-label">Consultora</label>
-          <select class="form-select" id="mal-consultora" onchange="loadMaletaConsultora()">
-            <option value="">Selecione...</option>
-          </select>
+        <div class="fg"><label class="fl">Consultora</label><select class="fs" id="mal-c"><option value="">Selecione...</option></select></div>
+        <div class="fg"><label class="fl">Produto</label><select class="fs" id="mal-p"><option value="">Selecione...</option></select></div>
+        <div class="fg"><label class="fl">Quantidade</label>
+          <div class="qty-ctrl"><button class="qty-btn" onclick="adjMQ(-1)">−</button><div class="qty-num" id="mal-qn">1</div><button class="qty-btn" onclick="adjMQ(1)">+</button></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Produto</label>
-          <select class="form-select" id="mal-produto">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Quantidade</label>
-          <div class="qty-ctrl">
-            <button class="qty-btn" onclick="adjMalQty(-1)">−</button>
-            <div class="qty-num" id="mal-qty-num">1</div>
-            <button class="qty-btn" onclick="adjMalQty(1)">+</button>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="despacharMaleta()">📦 Despachar</button>
+        <button class="btn btn-p" onclick="despacharMaleta()">📦 Despachar</button>
       </div>
-      <div class="sec-title" style="margin-bottom:12px;margin-top:8px;">Maletas em aberto</div>
-      <div id="g-maletas-list"></div>
+      <div class="sec-title" style="margin-bottom:12px;margin-top:8px;">Em aberto</div>
+      <div id="g-mal-list"></div>
     </div>
-
-    <!-- ══ CONSULTORA SCREENS ══ -->
-
-    <!-- C: PAINEL -->
+    <div class="screen" id="screen-g-revendedoras">
+      <div class="sec-title" style="margin-bottom:4px;">Fichas de Revendedoras</div>
+      <div style="font-size:12px;color:var(--brl);margin-bottom:14px;">Candidatas para análise</div>
+      <div class="tab-pills">
+        <div class="tab-pill active" onclick="filterFichas('pendente',this)">⏳ Pendentes</div>
+        <div class="tab-pill" onclick="filterFichas('aprovado',this)">✓ Aprovadas</div>
+        <div class="tab-pill" onclick="filterFichas('reprovado',this)">✗ Reprovadas</div>
+      </div>
+      <div id="g-rev-list"></div>
+    </div>
     <div class="screen" id="screen-c-painel">
       <div style="padding:4px 0 16px;">
-        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--tk-dark);">Olá, <em style="color:var(--tk-bege-dark);font-style:italic;" id="c-greeting-name">Consultora</em> 💎</div>
-        <div style="font-size:12px;color:var(--tk-muted);margin-top:2px;">Seu painel de vendas</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--br);">Olá, <em style="color:var(--gold-d);" id="c-hello">Consultora</em> 💎</div>
+        <div style="font-size:12px;color:var(--brl);margin-top:2px;">Seu painel de vendas</div>
       </div>
       <div class="metrics">
-        <div class="metric"><div class="metric-val" id="cm-maleta">—</div><div class="metric-label">Na maleta</div></div>
-        <div class="metric"><div class="metric-val" id="cm-vendas">—</div><div class="metric-label">Vendas</div></div>
-        <div class="metric"><div class="metric-val" id="cm-total">—</div><div class="metric-label">Total R$</div></div>
+        <div class="metric"><div class="metric-val" id="cm-m">—</div><div class="metric-lbl">Na maleta</div></div>
+        <div class="metric"><div class="metric-val" id="cm-v">—</div><div class="metric-lbl">Vendas</div></div>
+        <div class="metric"><div class="metric-val" id="cm-t">—</div><div class="metric-lbl">Total R$</div></div>
       </div>
-      <div class="card">
-        <div class="card-title">Últimas vendas</div>
-        <div id="c-recent-vendas"></div>
-      </div>
+      <div class="card"><div class="card-title">Últimas vendas</div><div id="c-rec-v"></div></div>
     </div>
-
-    <!-- C: CATÁLOGO (visualização) -->
     <div class="screen" id="screen-c-catalogo">
-      <div class="sec-hdr">
-        <div class="sec-title">Catálogo</div>
-      </div>
-      <div class="search-wrap">
-        <span class="search-ico">🔍</span>
-        <input placeholder="Buscar produto..." oninput="renderCCatalogo(this.value)" id="c-cat-search"/>
-      </div>
+      <div class="sec-hdr"><div class="sec-title">Catálogo</div></div>
+      <div class="swrap"><span class="sico">🔍</span><input placeholder="Buscar produto..." oninput="renderCCat(this.value)" id="c-cat-s"/></div>
       <div class="tab-pills" id="c-cat-pills"></div>
-      <div class="catalogo-grid" id="c-catalogo-grid"></div>
+      <div class="cgrid" id="c-cat-grid"></div>
     </div>
-
-    <!-- C: MALETA -->
     <div class="screen" id="screen-c-maleta">
       <div class="sec-title" style="margin-bottom:14px;">Minha Maleta</div>
-      <div id="c-maleta-list"></div>
+      <div id="c-mal-list"></div>
     </div>
-
-    <!-- C: VENDAS -->
     <div class="screen" id="screen-c-vendas">
       <div class="sec-title" style="margin-bottom:14px;">Registrar Venda</div>
       <div class="card">
-        <div class="form-group">
-          <label class="form-label">Peça da maleta</label>
-          <select class="form-select" id="v-produto" onchange="fillVendaPrice()">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Quantidade</label>
-            <div class="qty-ctrl">
-              <button class="qty-btn" onclick="adjVQty(-1)">−</button>
-              <div class="qty-num" id="v-qty-num">1</div>
-              <button class="qty-btn" onclick="adjVQty(1)">+</button>
-            </div>
+        <div class="fg"><label class="fl">Peça da maleta</label><select class="fs" id="v-prod" onchange="fillVP()"><option value="">Selecione...</option></select></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Quantidade</label>
+            <div class="qty-ctrl"><button class="qty-btn" onclick="adjVQ(-1)">−</button><div class="qty-num" id="v-qn">1</div><button class="qty-btn" onclick="adjVQ(1)">+</button></div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Tipo</label>
-            <select class="form-select" id="v-tipo">
-              <option value="venda">Venda</option>
-              <option value="consignado">Consignação</option>
-              <option value="troca">Troca</option>
-            </select>
-          </div>
+          <div class="fg"><label class="fl">Tipo</label><select class="fs" id="v-tipo"><option value="venda">Venda</option><option value="consignado">Consignação</option><option value="troca">Troca</option></select></div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Valor (R$)</label>
-            <input class="form-input" type="number" id="v-valor" placeholder="0,00" step="0.01" inputmode="decimal"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Pagamento</label>
-            <select class="form-select" id="v-pgto">
-              <option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Fiado</option>
-            </select>
-          </div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Valor (R$)</label><input class="fi" type="number" id="v-val" placeholder="0,00" step="0.01" inputmode="decimal"/></div>
+          <div class="fg"><label class="fl">Pagamento</label><select class="fs" id="v-pg"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Fiado</option></select></div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Cliente</label>
-          <input class="form-input" id="v-cliente" placeholder="Nome da cliente (opcional)" autocomplete="name"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Observação</label>
-          <input class="form-input" id="v-obs" placeholder="Ex: reservada, entregue no evento..."/>
-        </div>
-        <button class="btn btn-primary" onclick="registrarVenda()">✓ Confirmar Venda</button>
+        <div class="fg"><label class="fl">Cliente</label><input class="fi" id="v-cli" placeholder="Nome (opcional)"/></div>
+        <div class="fg"><label class="fl">Observação</label><input class="fi" id="v-obs" placeholder="Ex: entregue no evento..."/></div>
+        <button class="btn btn-p" onclick="registrarVenda()">✓ Confirmar Venda</button>
       </div>
       <div class="sec-title" style="margin-bottom:12px;margin-top:4px;">Histórico</div>
-      <div id="c-historico-list"></div>
+      <div id="c-hist-list"></div>
     </div>
-
-  </div><!-- /app-body -->
-
-  <!-- TAB BAR GESTORA -->
-  <nav class="tab-bar" id="tabs-gestora" style="display:none;">
-    <button class="tab active" onclick="goTabG('painel')" id="tg-painel">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Painel
-    </button>
-    <button class="tab" onclick="goTabG('catalogo')" id="tg-catalogo">
-      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Catálogo
-    </button>
-    <button class="tab" onclick="goTabG('consultoras')" id="tg-consultoras">
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Consultoras
-    </button>
-    <button class="tab" onclick="goTabG('maletas')" id="tg-maletas">
-      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Maletas
-    </button>
+  </div>
+  <nav class="tab-bar" id="tabs-g" style="display:none;">
+    <button class="tab active" onclick="goTabG('painel')" id="tg-painel"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Painel</button>
+    <button class="tab" onclick="goTabG('catalogo')" id="tg-catalogo"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Catálogo</button>
+    <button class="tab" onclick="goTabG('consultoras')" id="tg-consultoras"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Times</button>
+    <button class="tab" onclick="goTabG('maletas')" id="tg-maletas"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Maletas</button>
+    <button class="tab" onclick="goTabG('revendedoras')" id="tg-revendedoras"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>Fichas</button>
   </nav>
-
-  <!-- TAB BAR CONSULTORA -->
-  <nav class="tab-bar" id="tabs-consultora" style="display:none;">
-    <button class="tab active" onclick="goTabC('painel')" id="tc-painel">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Painel
-    </button>
-    <button class="tab" onclick="goTabC('catalogo')" id="tc-catalogo">
-      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Catálogo
-    </button>
-    <button class="tab" onclick="goTabC('maleta')" id="tc-maleta">
-      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Maleta
-    </button>
-    <button class="tab" onclick="goTabC('vendas')" id="tc-vendas">
-      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Vendas
-    </button>
+  <nav class="tab-bar" id="tabs-c" style="display:none;">
+    <button class="tab active" onclick="goTabC('painel')" id="tc-painel"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Painel</button>
+    <button class="tab" onclick="goTabC('catalogo')" id="tc-catalogo"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Catálogo</button>
+    <button class="tab" onclick="goTabC('maleta')" id="tc-maleta"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Maleta</button>
+    <button class="tab" onclick="goTabC('vendas')" id="tc-vendas"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>Vendas</button>
   </nav>
+</div>
 
-</div><!-- /app -->
-
-<!-- MODAL: PRODUTO (gestora) -->
+<!-- MODAIS -->
 <div class="modal-overlay" id="modal-prod">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-prod')">×</button>
     <div class="modal-title" id="mprod-title">Novo Produto</div>
     <input type="hidden" id="prod-eid"/>
-
-    <!-- Foto -->
-    <div class="form-group">
-      <label class="form-label">Foto do produto</label>
-      <div class="foto-upload-area" onclick="document.getElementById('foto-file').click()" id="foto-drop">
-        <img id="foto-preview-img" class="foto-preview" style="display:none;"/>
-        <div id="foto-placeholder">
-          <div class="foto-upload-ico">📷</div>
-          <div class="foto-upload-text">Toque para adicionar foto</div>
-          <div class="foto-upload-sub">JPG ou PNG · máx 5MB</div>
-        </div>
+    <div class="fg">
+      <label class="fl">Foto</label>
+      <div class="foto-area" onclick="document.getElementById('foto-file').click()">
+        <img id="foto-prev" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:8px;display:none;"/>
+        <div id="foto-ph"><div style="font-size:28px;">📷</div><div style="font-size:13px;color:var(--brl);">Toque para adicionar foto</div></div>
       </div>
       <input type="file" id="foto-file" accept="image/*" style="display:none;" onchange="handleFoto(this)"/>
-      <div class="form-group" style="margin-top:8px;">
-        <label class="form-label">Ou cole o link da foto</label>
-        <input class="form-input" id="prod-foto-url" placeholder="https://..." oninput="handleFotoUrl(this.value)"/>
-      </div>
+      <label class="fl" style="margin-top:8px;">Ou link da foto</label>
+      <input class="fi" id="prod-furl" placeholder="https://..." oninput="handleFotoUrl(this.value)"/>
     </div>
-
-    <div class="form-group"><label class="form-label">Nome da peça</label><input class="form-input" id="prod-nome" placeholder="Ex: Brinco Aurora"/></div>
-    <div class="form-group"><label class="form-label">Código / Ref.</label><input class="form-input" id="prod-codigo" placeholder="Ex: BRN-001"/></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Categoria</label>
-        <select class="form-select" id="prod-cat"><option>Colar</option><option>Pulseira</option><option>Brinco</option><option>Tornozeleira</option><option>Anel</option><option>Conjunto</option><option>Outro</option></select>
-      </div>
-      <div class="form-group"><label class="form-label">Material</label>
-        <select class="form-select" id="prod-mat"><option>Ouro 18k</option><option>Rose Gold</option><option>Prata</option><option>Banho Ouro</option><option>Aço Inox</option></select>
-      </div>
+    <div class="fg"><label class="fl">Nome *</label><input class="fi" id="prod-nome" placeholder="Ex: Brinco Aurora"/></div>
+    <div class="fg"><label class="fl">Código *</label><input class="fi" id="prod-cod" placeholder="Ex: BRN-001"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Categoria</label><select class="fs" id="prod-cat"><option>Colar</option><option>Pulseira</option><option>Brinco</option><option>Tornozeleira</option><option>Anel</option><option>Conjunto</option><option>Outro</option></select></div>
+      <div class="fg"><label class="fl">Material</label><select class="fs" id="prod-mat"><option>Ouro 18k</option><option>Rose Gold</option><option>Prata</option><option>Banho Ouro</option><option>Aço Inox</option></select></div>
     </div>
-    <div class="form-group"><label class="form-label">Descrição</label><textarea class="form-textarea" id="prod-desc" placeholder="Descreva a peça, detalhes, medidas..."></textarea></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Preço venda</label><input class="form-input" type="number" id="prod-preco" placeholder="0,00" step="0.01" inputmode="decimal"/></div>
-      <div class="form-group"><label class="form-label">Custo</label><input class="form-input" type="number" id="prod-custo" placeholder="0,00" step="0.01" inputmode="decimal"/></div>
-    </div>
-    <button class="btn btn-primary" onclick="salvarProduto()">💾 Salvar Produto</button>
+    <div class="fg"><label class="fl">Descrição</label><textarea class="ft" id="prod-desc"></textarea></div>
+    <div class="fg"><label class="fl">Preço de venda</label><input class="fi" type="number" id="prod-preco" placeholder="0,00" step="0.01" inputmode="decimal"/></div>
+    <button class="btn btn-p" onclick="salvarProduto()">💾 Salvar Produto</button>
   </div>
 </div>
 
-<!-- MODAL: CONSULTORA (gestora) -->
-<div class="modal-overlay" id="modal-consultora">
+<div class="modal-overlay" id="modal-cons">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-consultora')">×</button>
-    <div class="modal-title" id="mconsultora-title">Nova Consultora</div>
-    <input type="hidden" id="c-eid"/>
-    <div class="form-group"><label class="form-label">Nome completo</label><input class="form-input" id="c-nome" placeholder="Ex: Ana Lima"/></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Cidade</label><input class="form-input" id="c-cidade" placeholder="Ex: São Paulo"/></div>
-      <div class="form-group"><label class="form-label">Telefone</label><input class="form-input" id="c-tel" placeholder="(11) 99999-9999" type="tel"/></div>
+    <button class="modal-close" onclick="closeModal('modal-cons')">×</button>
+    <div class="modal-title" id="mcons-title">Nova Consultora</div>
+    <input type="hidden" id="cons-eid"/>
+    <div class="fg"><label class="fl">Nome completo</label><input class="fi" id="cons-nome" placeholder="Ex: Ana Lima"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Cidade</label><input class="fi" id="cons-cidade" placeholder="São Paulo"/></div>
+      <div class="fg"><label class="fl">Telefone</label><input class="fi" id="cons-tel" placeholder="(11) 99999-9999" type="tel"/></div>
     </div>
-    <div class="form-group"><label class="form-label">Senha de acesso</label><input class="form-input" id="c-senha" type="password" placeholder="Senha para ela entrar no app"/></div>
-    <button class="btn btn-primary" onclick="salvarConsultora()">💾 Salvar Consultora</button>
+    <div class="fg"><label class="fl">Senha de acesso</label><input class="fi" id="cons-senha" type="password" placeholder="Senha para ela entrar"/></div>
+    <button class="btn btn-p" onclick="salvarConsultora()">💾 Salvar</button>
   </div>
 </div>
 
-<!-- MODAL: DETALHE PRODUTO (consultora/catálogo) -->
-<div class="modal-overlay" id="modal-prod-detail">
+<div class="modal-overlay" id="modal-det">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-prod-detail')">×</button>
-    <div id="prod-detail-content"></div>
+    <button class="modal-close" onclick="closeModal('modal-det')">×</button>
+    <div id="det-content"></div>
+  </div>
+</div>
+
+<!-- MODAL CADASTRO REVENDEDORA -->
+<div class="modal-overlay" id="modal-cad">
+  <div class="modal" style="padding:0;border-radius:22px 22px 0 0;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#C6A46C,#B8925A);padding:20px 20px 16px;position:sticky;top:0;z-index:10;">
+      <button onclick="fecharCadastro()" style="float:right;background:none;border:none;color:rgba(255,255,255,.75);font-size:24px;cursor:pointer;margin-top:-2px;">×</button>
+      <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;margin-bottom:2px;">Quero ser Revendedora</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.72);">Preencha a ficha — analisaremos em até 48h</div>
+      <div class="sdots"><div class="sdot active" id="sd1"></div><div class="sdot" id="sd2"></div><div class="sdot" id="sd3"></div></div>
+    </div>
+    <div id="cad-body" style="padding:20px 18px 32px;overflow-y:scroll;-webkit-overflow-scrolling:touch;max-height:calc(90vh - 140px);overscroll-behavior:contain;">
+      <div id="cs1">
+        <div class="step-title">📋 Dados Pessoais</div>
+        <div class="fg"><label class="fl">Nome completo *</label><input class="fi" id="cn-nome" placeholder="Seu nome completo"/></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">WhatsApp *</label><input class="fi" id="cn-wpp" type="tel" placeholder="(11) 99999-9999"/></div>
+          <div class="fg"><label class="fl">Nascimento *</label><input class="fi" id="cn-nasc" type="date"/></div>
+        </div>
+        <div class="fg"><label class="fl">E-mail</label><input class="fi" id="cn-email" type="email" placeholder="seu@email.com"/></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">Cidade *</label><input class="fi" id="cn-cidade" placeholder="Sua cidade"/></div>
+          <div class="fg"><label class="fl">Estado</label>
+            <select class="fs" id="cn-uf"><option value="">UF</option><option>AC</option><option>AL</option><option>AM</option><option>AP</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MG</option><option>MS</option><option>MT</option><option>PA</option><option>PB</option><option>PE</option><option>PI</option><option>PR</option><option>RJ</option><option>RN</option><option>RO</option><option>RR</option><option>RS</option><option>SC</option><option selected>SP</option><option>SE</option><option>TO</option></select>
+          </div>
+        </div>
+        <button class="btn btn-p" onclick="cadNext(1)">Próximo →</button>
+      </div>
+      <div id="cs2" style="display:none;">
+        <div class="step-title">🪪 Documentos</div>
+        <div class="fr">
+          <div class="fg"><label class="fl">CPF *</label><input class="fi" id="cn-cpf" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)"/></div>
+          <div class="fg"><label class="fl">RG</label><input class="fi" id="cn-rg" placeholder="00.000.000-0"/></div>
+        </div>
+        <div class="fg"><label class="fl">Endereço</label><input class="fi" id="cn-end" placeholder="Rua, número, bairro"/></div>
+        <div class="fr">
+          <div class="fg"><label class="fl">CEP</label><input class="fi" id="cn-cep" placeholder="00000-000" maxlength="9" oninput="mCEP(this)"/></div>
+          <div class="fg"><label class="fl">Complemento</label><input class="fi" id="cn-comp" placeholder="Apto..."/></div>
+        </div>
+        <div class="fg"><label class="fl">Referência pessoal</label><input class="fi" id="cn-ref" placeholder="Nome e telefone"/></div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="btn btn-sm btn-o" onclick="cadBack(2)" style="flex:1;padding:13px;">← Voltar</button>
+          <button class="btn btn-p" onclick="cadNext(2)" style="flex:2;">Próximo →</button>
+        </div>
+      </div>
+      <div id="cs3" style="display:none;">
+        <div class="step-title">💼 Perfil Profissional</div>
+        <div class="info-box">Informações confidenciais para analisarmos o melhor suporte para você.</div>
+        <div class="fg"><label class="fl">Ocupação atual *</label>
+          <select class="fs" id="cn-ocup"><option value="">Selecione...</option><option>Empregada CLT</option><option>Autônoma / Freelancer</option><option>Empresária / MEI</option><option>Dona de casa</option><option>Estudante</option><option>Desempregada no momento</option><option>Aposentada / Pensionista</option></select>
+        </div>
+        <div class="fg"><label class="fl">Renda mensal aproximada *</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="renda" value="ate1500"/> Até R$ 1.500</label>
+            <label class="ro"><input type="radio" name="renda" value="1500-3000"/> R$ 1.500 – R$ 3.000</label>
+            <label class="ro"><input type="radio" name="renda" value="3000-5000"/> R$ 3.000 – R$ 5.000</label>
+            <label class="ro"><input type="radio" name="renda" value="acima5000"/> Acima de R$ 5.000</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Possui nome negativado (SPC/Serasa)? *</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="neg" value="nao"/> ✓ Não, está limpo</label>
+            <label class="ro"><input type="radio" name="neg" value="sim"/> ⚠️ Sim, tenho restrição</label>
+            <label class="ro"><input type="radio" name="neg" value="naosabe"/> Não sei informar</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Já trabalhou com vendas diretas?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="vexp" value="nao"/> Não, primeira vez</label>
+            <label class="ro"><input type="radio" name="vexp" value="sim"/> Sim, tenho experiência</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Se sim, qual empresa?</label><input class="fi" id="cn-emp" placeholder="Ex: Avon, Natura..."/></div>
+
+        <div class="fg"><label class="fl">Nome da empresa onde trabalha</label><input class="fi" id="cn-empresa-atual" placeholder="Ex: Mercado Livre, Salão da Ana..."/></div>
+        <div class="fg"><label class="fl">Há quanto tempo está nessa empresa?</label>
+          <select class="fs" id="cn-tempo-empresa">
+            <option value="">Selecione...</option>
+            <option>Menos de 6 meses</option>
+            <option>6 meses a 1 ano</option>
+            <option>1 a 2 anos</option>
+            <option>2 a 5 anos</option>
+            <option>Mais de 5 anos</option>
+            <option>Não se aplica</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Possui casa própria?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="casa" value="propria"/> 🏠 Sim, casa própria</label>
+            <label class="ro"><input type="radio" name="casa" value="alugada"/> 🔑 Não, alugada</label>
+            <label class="ro"><input type="radio" name="casa" value="familia"/> 👨‍👩‍👧 Moro com família</label>
+            <label class="ro"><input type="radio" name="casa" value="financiada"/> 📋 Financiada</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Como pretende vender?</label>
+          <div class="cg">
+            <label class="co"><input type="checkbox" value="instagram"/> 📸 Instagram / Stories</label>
+            <label class="co"><input type="checkbox" value="whatsapp"/> 💬 WhatsApp / Grupos</label>
+            <label class="co"><input type="checkbox" value="catalogo"/> 📖 Catálogo físico</label>
+            <label class="co"><input type="checkbox" value="porta"/> 🚶 Porta a porta</label>
+            <label class="co"><input type="checkbox" value="eventos"/> 🎪 Eventos / Feiras</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Há quanto tempo mora nesse endereço?</label>
+          <select class="fs" id="cn-tempo-end">
+            <option value="">Selecione...</option>
+            <option>Menos de 6 meses</option>
+            <option>6 meses a 1 ano</option>
+            <option>1 a 2 anos</option>
+            <option>2 a 5 anos</option>
+            <option>Mais de 5 anos</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Possui carro próprio?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="carro" value="sim"/> 🚗 Sim</label>
+            <label class="ro"><input type="radio" name="carro" value="nao"/> Não</label>
+            <label class="ro"><input type="radio" name="carro" value="financiado"/> 📋 Sim, financiado</label>
+          </div>
+        </div>
+        <div class="fg"><label class="fl">Possui cartão de crédito?</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="cartao" value="sim"/> ✓ Sim</label>
+            <label class="ro"><input type="radio" name="cartao" value="nao"/> Não</label>
+            <label class="ro"><input type="radio" name="cartao" value="multiplos"/> Sim, mais de um</label>
+          </div>
+        </div>
+
+        <!-- TERMO ELIMINATÓRIO -->
+        <div class="fg" style="background:rgba(198,164,108,.10);border:1.5px solid rgba(198,164,108,.35);border-radius:14px;padding:14px;">
+          <div style="font-family:'Playfair Display',serif;font-size:14px;color:var(--br);margin-bottom:6px;">⚖️ Termo de Responsabilidade</div>
+          <div style="font-size:12px;color:var(--brm);line-height:1.7;margin-bottom:12px;">Em caso de inadimplência, declaro estar ciente de que a <strong>Talita Kume Semijoias</strong> está autorizada a tomar as medidas judiciais e extrajudiciais cabíveis para recuperação dos valores devidos.</div>
+          <div class="rg">
+            <label class="ro" style="border-color:rgba(90,160,90,.4);background:#EDF5ED;">
+              <input type="radio" name="termo" value="aceito" style="accent-color:#5A7A5A;"/> ✅ <strong>Aceito os termos</strong>
+            </label>
+            <label class="ro" style="border-color:rgba(180,80,80,.3);background:#F5EDED;">
+              <input type="radio" name="termo" value="nao_aceito"/> ❌ Não aceito
+            </label>
+          </div>
+        </div>
+          <select class="fs" id="cn-orig"><option value="">Selecione...</option><option>Instagram</option><option>Indicação de amiga</option><option>Indicação de consultora</option><option>WhatsApp / Grupo</option><option>Evento / Feira</option><option>Já sou cliente</option><option>Outro</option></select>
+        </div>
+        <div class="fg"><label class="fl">Por que quer ser revendedora? <span style="opacity:.5;font-size:10px;">(opcional)</span></label>
+          <textarea class="ft" id="cn-mot" placeholder="Conte sua motivação..." style="min-height:80px;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <button class="btn btn-sm btn-o" onclick="cadBack(3)" style="flex:1;padding:13px;">← Voltar</button>
+          <button class="btn btn-p" onclick="enviarCadastro()" id="btn-env" style="flex:2;">✓ Enviar Ficha</button>
+        </div>
+      </div>
+      <div id="cs-ok" style="display:none;text-align:center;padding:32px 12px;">
+        <div style="font-size:52px;margin-bottom:16px;">💎</div>
+        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--br);margin-bottom:8px;">Ficha enviada!</div>
+        <div style="font-size:14px;color:var(--brl);line-height:1.7;margin-bottom:24px;">Analisaremos e retornaremos em até <strong>48 horas</strong> pelo WhatsApp.</div>
+        <button class="btn btn-p" onclick="fecharCadastro()">Fechar</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
-// SUPABASE CONFIG
-// ═══════════════════════════════════════════════════
-const SUPABASE_URL = 'https://dsepiprtjwgaxtppliek.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzZXBpcHJ0andnYXh0cHBsaWVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDgwNDUsImV4cCI6MjA5NDI4NDA0NX0.QVMrhJdsRrvlp78ekkkOk7tGudnrUa5yU8SlDzoLD2Q';
-const GESTORA_SENHA = 'talitakume2024'; // Altere esta senha!
+const SB_URL='https://dsepiprtjwgaxtppliek.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzZXBpcHJ0andnYXh0cHBsaWVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3MDgwNDUsImV4cCI6MjA5NDI4NDA0NX0.QVMrhJdsRrvlp78ekkkOk7tGudnrUa5yU8SlDzoLD2Q';
+const G_PASS='talitakume2024';
+const {createClient}=supabase;
+const db=createClient(SB_URL,SB_KEY);
 
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+let role=null,user=null,fotoB64=null,vQty=1,mQty=1;
+let allP=[],allC=[],malItems=[],fichaStatus='pendente';
 
-// ═══════════════════════════════════════════════════
-// ESTADO
-// ═══════════════════════════════════════════════════
-let currentRole = null; // 'gestora' | 'consultora'
-let currentUser = null; // { id, nome, cidade } para consultora
-let fotoBase64 = null;
-let vendaQty = 1;
-let malQty = 1;
-let allProdutos = [];
-let allConsultoras = [];
-let maletaItems = [];
+/* ══ FUNÇÕES GLOBAIS DOS BOTÕES DA CAPA ══ */
+function doLogin(){
+  role='consultora';
+  document.getElementById('login-badge').textContent='💎 Consultora';
+  document.getElementById('lf-gestora').style.display='none';
+  document.getElementById('lf-consultora').style.display='block';
+  showScreen('login');
+}
 
-// ═══════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════
-window.addEventListener('load', async () => {
-  // Checar sessão salva
-  const saved = localStorage.getItem('tk_session');
-  if (saved) {
-    const sess = JSON.parse(saved);
-    currentRole = sess.role;
-    currentUser = sess.user;
-    await initApp();
-  } else {
-    document.getElementById('loading').style.display = 'none';
+function doCatalogo(){
+  role='catalogo';
+  user={nome:'Visitante'};
+  localStorage.setItem('tk_s',JSON.stringify({role,user}));
+  initApp();
+}
+
+/* ★ FUNÇÃO CRÍTICA — botão Quero ser Revendedora ★ */
+function abrirCadastro(){
+  // 1. Esconde a tela de role para o modal aparecer na frente
+  document.getElementById('role-screen').style.display='none';
+  // 2. Reseta o formulário
+  for(var i=1;i<=3;i++){
+    document.getElementById('cs'+i).style.display=(i===1)?'block':'none';
+    document.getElementById('sd'+i).className='sdot'+((i===1)?' active':'');
+  }
+  document.getElementById('cs-ok').style.display='none';
+  document.getElementById('cad-body').scrollTop=0;
+  // 3. Abre o modal
+  document.getElementById('modal-cad').style.display='flex';
+}
+
+function fecharCadastro(){
+  document.getElementById('modal-cad').style.display='none';
+  document.getElementById('role-screen').style.display='flex';
+}
+
+/* ══ EASTER EGG GESTORA ══ */
+var _taps=0,_tt;
+function doGestoraTap(){
+  _taps++;clearTimeout(_tt);
+  if(_taps>=3){_taps=0;role='gestora';document.getElementById('login-badge').textContent='👑 Gestora';document.getElementById('lf-gestora').style.display='block';document.getElementById('lf-consultora').style.display='none';showScreen('login');return;}
+  _tt=setTimeout(function(){_taps=0;},900);
+}
+
+/* ══ INIT ══ */
+window.addEventListener('load',async function(){
+  document.getElementById('brand-tap').addEventListener('click',doGestoraTap);
+  var s=localStorage.getItem('tk_s');
+  if(s){
+    try{var p=JSON.parse(s);role=p.role;user=p.user;await initApp();}
+    catch(e){localStorage.removeItem('tk_s');document.getElementById('loading').style.display='none';showScreen('role');}
+  }else{
+    document.getElementById('loading').style.display='none';
     showScreen('role');
   }
 });
 
-function showScreen(name) {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('role-screen').style.display = name === 'role' ? 'flex' : 'none';
-  document.getElementById('login-screen').style.display = name === 'login' ? 'flex' : 'none';
-  document.getElementById('app').style.display = name === 'app' ? 'flex' : 'none';
+function showScreen(n){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('role-screen').style.display=n==='role'?'flex':'none';
+  document.getElementById('login-screen').style.display=n==='login'?'flex':'none';
+  document.getElementById('app').style.display=n==='app'?'flex':'none';
 }
 
-// ═══════════════════════════════════════════════════
-// ROLE / LOGIN
-// ═══════════════════════════════════════════════════
-function selectRole(role) {
-  if (role === 'catalogo') {
-    currentRole = 'catalogo';
-    currentUser = { nome: 'Visitante' };
-    localStorage.setItem('tk_session', JSON.stringify({ role, user: currentUser }));
-    initApp();
+async function loginGestora(){
+  if(document.getElementById('l-senha-g').value!==G_PASS){showToast('Senha incorreta');return;}
+  user={nome:'Talita'};localStorage.setItem('tk_s',JSON.stringify({role:'gestora',user}));await initApp();
+}
+async function loginConsultora(){
+  var n=document.getElementById('l-nome-c').value.trim();
+  var s=document.getElementById('l-senha-c').value;
+  if(!n||!s){showToast('Preencha os campos');return;}
+  var r=await db.from('consultoras').select('*').ilike('nome','%'+n+'%').eq('senha',s).eq('ativa',true).single();
+  if(r.error||!r.data){showToast('Nome ou senha incorretos');return;}
+  user={id:r.data.id,nome:r.data.nome,cidade:r.data.cidade};
+  localStorage.setItem('tk_s',JSON.stringify({role:'consultora',user}));await initApp();
+}
+function doLogout(){localStorage.removeItem('tk_s');location.reload();}
+
+async function initApp(){
+  showScreen('app');
+  document.getElementById('hdr-user').textContent=user?.nome||'';
+  if(role==='gestora'){
+    document.getElementById('hdr-role-lbl').textContent='Gestora';
+    document.getElementById('hdr-role-badge').textContent='👑';
+    document.getElementById('tabs-g').style.display='flex';
+    document.getElementById('tabs-c').style.display='none';
+    await loadData();goTabG('painel');
+  }else if(role==='consultora'){
+    document.getElementById('hdr-role-lbl').textContent='Consultora';
+    document.getElementById('hdr-role-badge').textContent='💎';
+    document.getElementById('tabs-c').style.display='flex';
+    document.getElementById('tabs-g').style.display='none';
+    document.getElementById('c-hello').textContent=user.nome.split(' ')[0];
+    await loadData();goTabC('painel');
+  }else{
+    document.getElementById('hdr-role-lbl').textContent='Catálogo';
+    document.getElementById('hdr-role-badge').textContent='🛍️';
+    document.getElementById('tabs-c').style.display='flex';
+    document.getElementById('tabs-g').style.display='none';
+    ['tc-painel','tc-maleta','tc-vendas'].forEach(function(id){document.getElementById(id).style.display='none';});
+    await loadData();goTabC('catalogo');
+  }
+}
+
+async function loadData(){
+  var r=await Promise.all([
+    db.from('produtos').select('*').eq('ativo',true).order('nome'),
+    db.from('consultoras').select('*').eq('ativa',true).order('nome'),
+    db.from('maletas').select('*,produtos(*),consultoras(*)')
+  ]);
+  allP=r[0].data||[];allC=r[1].data||[];
+  var m=r[2].data||[];
+  malItems=(role==='consultora'&&user?.id)?m.filter(function(x){return x.consultora_id===user.id;}):m;
+}
+
+function goTabG(tab){
+  document.querySelectorAll('.screen[id^="screen-g-"]').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('#tabs-g .tab').forEach(function(t){t.classList.remove('active');});
+  var sc=document.getElementById('screen-g-'+tab);if(sc)sc.classList.add('active');
+  var tb=document.getElementById('tg-'+tab);if(tb)tb.classList.add('active');
+  if(tab==='painel')rGPainel();
+  if(tab==='catalogo')renderGCat();
+  if(tab==='consultoras')renderGCons();
+  if(tab==='maletas')renderGMal();
+  if(tab==='revendedoras')renderFichas('pendente');
+}
+function goTabC(tab){
+  document.querySelectorAll('.screen[id^="screen-c-"]').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('#tabs-c .tab').forEach(function(t){t.classList.remove('active');});
+  var sc=document.getElementById('screen-c-'+tab);if(sc)sc.classList.add('active');
+  var tb=document.getElementById('tc-'+tab);if(tb)tb.classList.add('active');
+  if(tab==='painel')rCPainel();
+  if(tab==='catalogo')renderCCat();
+  if(tab==='maleta')renderCMal();
+  if(tab==='vendas')renderCVendas();
+}
+
+async function rGPainel(){
+  document.getElementById('gm-p').textContent=allP.length;
+  document.getElementById('gm-c').textContent=allC.length;
+  var r=await db.from('vendas').select('*').order('data_venda',{ascending:false}).limit(20);
+  var v=r.data||[];
+  document.getElementById('gm-v').textContent=v.length;
+  document.getElementById('g-rec-v').innerHTML=v.slice(0,5).length===0
+    ?'<div style="font-size:13px;color:var(--brl);">Nenhuma venda ainda</div>'
+    :v.slice(0,5).map(function(x){return'<div class="li"><div class="li-ico">'+cIco(x.produto_cat)+'</div><div class="li-info"><div class="li-name">'+x.produto_nome+'</div><div class="li-sub">'+(x.cliente||'Cliente')+' · '+fD(x.data_venda)+'</div></div><div class="li-r"><div class="li-price">R$'+fmt(x.valor)+'</div></div></div>';}).join('');
+}
+
+function renderGCat(q){
+  q=q||'';
+  var p=allP.filter(function(x){return!q||x.nome.toLowerCase().includes(q.toLowerCase())||(x.codigo||'').toLowerCase().includes(q.toLowerCase());});
+  document.getElementById('g-cat-list').innerHTML=p.length===0
+    ?'<div class="empty"><div class="empty-ico">💎</div><div class="empty-title">Nenhum produto</div></div>'
+    :p.map(function(x){return'<div class="li">'+(x.foto_url?'<img class="li-img" src="'+x.foto_url+'"  onerror="this.style.display=\'none\'"/>':`<div class="li-ico">${cIco(x.categoria)}</div>`)+'<div class="li-info"><div class="li-name">'+x.nome+'</div><div class="li-sub">'+(x.codigo||'—')+' · '+(x.categoria||'')+'</div></div><div class="li-r"><div class="li-price">R$'+fmt(x.preco)+'</div><div style="margin-top:6px;display:flex;gap:4px;"><button class="btn btn-sm btn-o" onclick="editProd(\''+x.id+'\')" style="padding:4px 10px;">✏️</button><button class="btn btn-sm btn-d" onclick="delProd(\''+x.id+'\')" style="padding:4px 10px;">🗑</button></div></div></div>';}).join('');
+}
+function openModalProd(){
+  document.getElementById('mprod-title').textContent='Novo Produto';
+  document.getElementById('prod-eid').value='';
+  ['prod-nome','prod-cod','prod-desc','prod-preco','prod-custo','prod-furl'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('foto-prev').style.display='none';document.getElementById('foto-ph').style.display='block';fotoB64=null;
+  openModal('modal-prod');
+}
+function editProd(id){
+  var p=allP.find(function(x){return x.id===id;});if(!p)return;
+  document.getElementById('mprod-title').textContent='Editar';document.getElementById('prod-eid').value=id;
+  document.getElementById('prod-nome').value=p.nome;document.getElementById('prod-cod').value=p.codigo||'';
+  document.getElementById('prod-cat').value=p.categoria||'Brinco';document.getElementById('prod-mat').value=p.material||'Ouro 18k';
+  document.getElementById('prod-desc').value=p.descricao||'';document.getElementById('prod-preco').value=p.preco;
+  document.getElementById('prod-custo').value=p.custo||'';document.getElementById('prod-furl').value=p.foto_url||'';
+  if(p.foto_url){document.getElementById('foto-prev').src=p.foto_url;document.getElementById('foto-prev').style.display='block';document.getElementById('foto-ph').style.display='none';}
+  else{document.getElementById('foto-prev').style.display='none';document.getElementById('foto-ph').style.display='block';}
+  fotoB64=null;openModal('modal-prod');
+}
+async function salvarProduto(){
+  var nome=document.getElementById('prod-nome').value.trim();var cod=document.getElementById('prod-cod').value.trim();
+  if(!nome){showToast('Digite o nome');return;}if(!cod){showToast('Digite o código');return;}
+  var fu=document.getElementById('prod-furl').value.trim();if(fotoB64)fu=fotoB64;
+  var obj={nome:nome,codigo:cod,categoria:document.getElementById('prod-cat').value,material:document.getElementById('prod-mat').value,descricao:document.getElementById('prod-desc').value.trim(),preco:parseFloat(document.getElementById('prod-preco').value)||0,foto_url:fu||null,ativo:true};
+  var eid=document.getElementById('prod-eid').value;
+  var r=eid?await db.from('produtos').update(obj).eq('id',eid):await db.from('produtos').insert(obj);
+  if(r.error){showToast('Erro: '+r.error.message);return;}
+  await loadData();closeModal('modal-prod');renderGCat();showToast(eid?'Atualizado ✓':'Adicionado ✓');
+}
+async function delProd(id){if(!confirm('Remover?'))return;await db.from('produtos').update({ativo:false}).eq('id',id);await loadData();renderGCat();showToast('Removido');}
+function handleFoto(input){
+  var f=input.files[0];if(!f)return;if(f.size>5*1024*1024){showToast('Máx 5MB');return;}
+  var rd=new FileReader();rd.onload=function(e){fotoB64=e.target.result;document.getElementById('foto-prev').src=fotoB64;document.getElementById('foto-prev').style.display='block';document.getElementById('foto-ph').style.display='none';document.getElementById('prod-furl').value='';};rd.readAsDataURL(f);
+}
+function handleFotoUrl(u){
+  if(!u){document.getElementById('foto-prev').style.display='none';document.getElementById('foto-ph').style.display='block';return;}
+  fotoB64=null;document.getElementById('foto-prev').src=u;document.getElementById('foto-prev').style.display='block';document.getElementById('foto-ph').style.display='none';
+}
+function renderGCons(){
+  document.getElementById('g-cons-list').innerHTML=allC.length===0
+    ?'<div class="empty"><div class="empty-ico">👥</div><div class="empty-title">Nenhuma consultora</div></div>'
+    :allC.map(function(c){var m=malItems.filter(function(x){return x.consultora_id===c.id;});return'<div class="card"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div class="cav">'+c.nome.charAt(0)+'</div><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--br);">'+c.nome+'</div><div style="font-size:11px;color:var(--brl);">'+(c.cidade||'')+' '+(c.telefone?'· '+c.telefone:'')+'</div></div><button class="btn btn-sm btn-o" onclick="editCons(\''+c.id+'\')" style="padding:4px 10px;">✏️</button></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"><div style="text-align:center;background:#FDFAF7;border-radius:9px;padding:8px 4px;"><div style="font-family:Playfair Display,serif;font-size:16px;color:var(--gold-d);">'+m.reduce(function(a,x){return a+(x.quantidade||0);},0)+'</div><div style="font-size:9px;color:var(--brl);text-transform:uppercase;">Na maleta</div></div><div style="text-align:center;background:#FDFAF7;border-radius:9px;padding:8px 4px;"><div style="font-family:Playfair Display,serif;font-size:16px;color:var(--gold-d);">—</div><div style="font-size:9px;color:var(--brl);text-transform:uppercase;">Vendas</div></div><div style="text-align:center;background:#FDFAF7;border-radius:9px;padding:8px 4px;"><div style="font-family:Playfair Display,serif;font-size:16px;color:var(--gold-d);">—</div><div style="font-size:9px;color:var(--brl);text-transform:uppercase;">Total</div></div></div></div>';}).join('');
+}
+function openModalCons(){document.getElementById('mcons-title').textContent='Nova Consultora';['cons-eid','cons-nome','cons-cidade','cons-tel','cons-senha'].forEach(function(id){document.getElementById(id).value='';});openModal('modal-cons');}
+function editCons(id){var c=allC.find(function(x){return x.id===id;});if(!c)return;document.getElementById('mcons-title').textContent='Editar';document.getElementById('cons-eid').value=id;document.getElementById('cons-nome').value=c.nome;document.getElementById('cons-cidade').value=c.cidade||'';document.getElementById('cons-tel').value=c.telefone||'';document.getElementById('cons-senha').value=c.senha||'';openModal('modal-cons');}
+async function salvarConsultora(){var n=document.getElementById('cons-nome').value.trim();var s=document.getElementById('cons-senha').value.trim();if(!n||!s){showToast('Preencha nome e senha');return;}var obj={nome:n,cidade:document.getElementById('cons-cidade').value.trim(),telefone:document.getElementById('cons-tel').value.trim(),senha:s,ativa:true};var eid=document.getElementById('cons-eid').value;var r=eid?await db.from('consultoras').update(obj).eq('id',eid):await db.from('consultoras').insert(obj);if(r.error){showToast('Erro: '+r.error.message);return;}await loadData();closeModal('modal-cons');renderGCons();showToast(eid?'Atualizada ✓':'Cadastrada ✓');}
+
+function renderGMal(){
+  document.getElementById('mal-c').innerHTML='<option value="">Selecione...</option>'+allC.map(function(c){return'<option value="'+c.id+'">'+c.nome+'</option>';}).join('');
+  document.getElementById('mal-p').innerHTML='<option value="">Selecione...</option>'+allP.map(function(p){return'<option value="'+p.id+'">'+p.nome+' ('+( p.codigo||'—')+')</option>';}).join('');
+  renderMalList();
+}
+function renderMalList(){
+  document.getElementById('g-mal-list').innerHTML=malItems.length===0
+    ?'<div class="empty"><div class="empty-ico">📦</div><div class="empty-title">Nenhuma maleta</div></div>'
+    :malItems.map(function(m){return'<div class="li">'+(m.produtos&&m.produtos.foto_url?'<img class="li-img" src="'+m.produtos.foto_url+'"/>':`<div class="li-ico">${cIco(m.produtos&&m.produtos.categoria)}</div>`)+'<div class="li-info"><div class="li-name">'+(m.produtos&&m.produtos.nome||'—')+'</div><div class="li-sub">'+(m.consultoras&&m.consultoras.nome||'—')+' · '+fD(m.data_despacho)+'</div></div><div class="li-r"><span class="badge b-gold">×'+m.quantidade+'</span><div style="margin-top:6px;"><button class="btn btn-sm btn-d" onclick="remMal(\''+m.id+'\')" style="padding:4px 10px;">🗑</button></div></div></div>';}).join('');
+}
+function adjMQ(d){mQty=Math.max(1,mQty+d);document.getElementById('mal-qn').textContent=mQty;}
+async function despacharMaleta(){var c=document.getElementById('mal-c').value;var p=document.getElementById('mal-p').value;if(!c||!p){showToast('Selecione consultora e produto');return;}var r=await db.from('maletas').insert({consultora_id:c,produto_id:p,quantidade:mQty});if(r.error){showToast('Erro: '+r.error.message);return;}await loadData();mQty=1;document.getElementById('mal-qn').textContent='1';renderMalList();showToast('Despachada ✓');}
+async function remMal(id){if(!confirm('Remover?'))return;await db.from('maletas').delete().eq('id',id);await loadData();renderMalList();showToast('Removido');}
+
+async function renderFichas(status){
+  fichaStatus=status;
+  var r=await db.from('cadastros_revendedoras').select('*').eq('status',status).order('criado_em',{ascending:false});
+  var el=document.getElementById('g-rev-list');
+  var data=r.data||[];
+  if(data.length===0){el.innerHTML='<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Nenhuma ficha</div></div>';return;}
+  el.innerHTML=data.map(function(f){var ri=calcRisco(f);return'<div class="ficha-card"><div class="ficha-hdr"><div class="cav">'+(f.nome||'?').charAt(0)+'</div><div style="flex:1;"><div style="font-size:15px;font-weight:500;color:var(--br);">'+(f.nome||'—')+'</div><div style="font-size:11px;color:var(--brl);">'+(f.cidade||'')+'/'+(f.estado||'')+' · '+(f.whatsapp||'')+'</div></div><span class="badge '+ri.cls+'">'+ri.label+'</span></div><div class="fgrid"><div class="fi-box"><div class="fi-lbl">Ocupação</div><div class="fi-val">'+(f.ocupacao||'—')+'</div></div><div class="fi-box"><div class="fi-lbl">Renda</div><div class="fi-val">'+fRenda(f.renda_faixa)+'</div></div><div class="fi-box"><div class="fi-lbl">Negativado</div><div class="fi-val" style="'+(f.negativado==='sim'?'color:#8A4040':f.negativado==='nao'?'color:#5A7A5A':'')+'">'+fNeg(f.negativado)+'</div></div><div class="fi-box"><div class="fi-lbl">Exp. vendas</div><div class="fi-val">'+(f.exp_vendas==='sim'?'✓ Sim':'Não')+'</div></div></div><div class="fdocs"><span>CPF: '+(f.cpf||'—')+'</span>'+(f.rg?'<span>RG: '+f.rg+'</span>':'')+'</div>'+(status==='pendente'?'<div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-sm btn-d" onclick="decidirFicha(\''+f.id+'\',\'reprovado\')" style="flex:1;padding:10px;">✗ Reprovar</button><button class="btn btn-sm btn-p" onclick="decidirFicha(\''+f.id+'\',\'aprovado\')" style="flex:2;padding:10px;">✓ Aprovar</button></div>':'')+'</div>';}).join('');
+}
+function filterFichas(s,el){document.querySelectorAll('#screen-g-revendedoras .tab-pill').forEach(function(p){p.classList.remove('active');});el.classList.add('active');renderFichas(s);}
+async function decidirFicha(id,s){if(!confirm(s==='aprovado'?'Aprovar?':'Reprovar?'))return;await db.from('cadastros_revendedoras').update({status:s}).eq('id',id);showToast(s==='aprovado'?'Aprovada ✓':'Reprovada');renderFichas(fichaStatus);}
+function calcRisco(f){var p=0;if(f.negativado==='sim')p+=3;if(f.negativado==='naosabe')p+=1;if(f.renda_faixa==='ate1500')p+=2;if(f.renda_faixa==='1500-3000')p+=1;if(f.ocupacao==='Desempregada no momento')p+=2;if(f.exp_vendas==='nao')p+=1;if(p===0)return{label:'Risco Baixo',cls:'b-ok'};if(p<=2)return{label:'Risco Médio',cls:'b-low'};return{label:'Risco Alto',cls:'b-out'};}
+function fRenda(v){return{ate1500:'Até R$1.500','1500-3000':'R$1,5k–3k','3000-5000':'R$3k–5k',acima5000:'Acima R$5k'}[v]||'—';}
+function fNeg(v){return{sim:'⚠️ Sim',nao:'✓ Não',naosabe:'? Não sabe'}[v]||'—';}
+
+async function rCPainel(){
+  document.getElementById('cm-m').textContent=malItems.reduce(function(a,m){return a+(m.quantidade||0);},0);
+  if(role==='consultora'&&user&&user.id){
+    var r=await db.from('vendas').select('*').eq('consultora_id',user.id).order('data_venda',{ascending:false});
+    var v=r.data||[];var tot=v.reduce(function(a,x){return a+(x.valor*x.quantidade);},0);
+    document.getElementById('cm-v').textContent=v.length;document.getElementById('cm-t').textContent=fmt(tot);
+    document.getElementById('c-rec-v').innerHTML=v.slice(0,5).length===0?'<div style="font-size:13px;color:var(--brl);">Nenhuma venda</div>':v.slice(0,5).map(function(x){return'<div class="li"><div class="li-ico">'+cIco(x.produto_cat)+'</div><div class="li-info"><div class="li-name">'+(x.produto_nome||'—')+'</div><div class="li-sub">'+(x.cliente||'Cliente')+' · '+fD(x.data_venda)+'</div></div><div class="li-r"><div class="li-price">R$'+fmt(x.valor)+'</div></div></div>';}).join('');
+  }else{document.getElementById('cm-v').textContent='—';document.getElementById('cm-t').textContent='—';document.getElementById('c-rec-v').innerHTML='<div style="font-size:13px;color:var(--brl);">Faça login como consultora</div>';}
+}
+
+function renderCCat(q,cf){
+  q=q||'';cf=cf||'';
+  var p=allP.filter(function(x){return(!q||x.nome.toLowerCase().includes(q.toLowerCase())||(x.codigo||'').toLowerCase().includes(q.toLowerCase()))&&(!cf||x.categoria===cf);});
+  var cats=['Colar','Pulseira','Brinco','Tornozeleira','Anel','Conjunto','Outro'];
+  document.getElementById('c-cat-pills').innerHTML='<div class="tab-pill '+((!cf)?'active':'')+'" onclick="renderCCat(\'\',\'\')">Todos</div>'+cats.map(function(c){return'<div class="tab-pill '+(cf===c?'active':'')+'" onclick="renderCCat(\'\',\''+c+'\')">'+c+'</div>';}).join('');
+  document.getElementById('c-cat-grid').innerHTML=p.length===0?'<div class="empty" style="grid-column:span 2"><div class="empty-ico">💎</div><div class="empty-title">Nenhum produto</div></div>':p.map(function(x){return'<div class="pc" onclick="openDet(\''+x.id+'\')"><div class="pc-img">'+(x.foto_url?'<img src="'+x.foto_url+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.textContent=\''+cIco(x.categoria)+'\'"/>':cIco(x.categoria))+'</div><div class="pc-body"><div class="pc-name">'+x.nome+'</div><div class="pc-code">'+(x.codigo||'')+'</div><div class="pc-price">R$ '+fmt(x.preco)+'</div></div></div>';}).join('');
+}
+function openDet(id){
+  var p=allP.find(function(x){return x.id===id;});if(!p)return;
+  var wa='https://wa.me/5511943441738?text='+encodeURIComponent('Olá! Vi o '+p.nome+' ('+p.codigo+') no catálogo. R$'+fmt(p.preco));
+  document.getElementById('det-content').innerHTML='<div style="width:100%;aspect-ratio:1;border-radius:16px;background:var(--nude);display:flex;align-items:center;justify-content:center;font-size:60px;margin-bottom:16px;overflow:hidden;">'+(p.foto_url?'<img src="'+p.foto_url+'" style="width:100%;height:100%;object-fit:cover;"/>':cIco(p.categoria))+'</div><div style="font-family:Playfair Display,serif;font-size:22px;color:var(--br);">'+p.nome+'</div><div style="font-family:Playfair Display,serif;font-size:26px;color:var(--gold-d);margin:12px 0;">R$ '+fFull(p.preco)+'</div>'+(p.descricao?'<div style="font-size:14px;color:var(--brm);line-height:1.6;margin-bottom:16px;">'+p.descricao+'</div>':'')+'<div style="display:flex;gap:8px;"><button style="flex:1;padding:11px;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:#25D366;color:white;font-family:Inter,sans-serif;" onclick="window.open(\''+wa+'\',\'_blank\')">💬 WhatsApp</button></div>';
+  openModal('modal-det');
+}
+function renderCMal(){
+  document.getElementById('c-mal-list').innerHTML=malItems.length===0?'<div class="empty"><div class="empty-ico">🧳</div><div class="empty-title">Maleta vazia</div><div class="empty-sub">Aguarde o despacho</div></div>':malItems.map(function(m){return'<div class="li">'+(m.produtos&&m.produtos.foto_url?'<img class="li-img" src="'+m.produtos.foto_url+'" onerror="this.style.display=\'none\'"/>':`<div class="li-ico">${cIco(m.produtos&&m.produtos.categoria)}</div>`)+'<div class="li-info"><div class="li-name">'+(m.produtos&&m.produtos.nome||'—')+'</div><div class="li-sub">'+(m.produtos&&m.produtos.codigo||'')+'</div></div><div class="li-r"><div class="li-price">R$'+fmt((m.produtos&&m.produtos.preco)||0)+'</div><span class="badge b-gold" style="margin-top:4px;">×'+m.quantidade+'</span></div></div>';}).join('');
+}
+async function renderCVendas(){
+  document.getElementById('v-prod').innerHTML='<option value="">Selecione...</option>'+malItems.map(function(m){return'<option value="'+m.produto_id+'" data-p="'+(m.produtos&&m.produtos.preco||0)+'" data-n="'+(m.produtos&&m.produtos.nome||'')+'" data-c="'+(m.produtos&&m.produtos.categoria||'')+'">'+(m.produtos&&m.produtos.nome||'—')+' · R$'+fmt((m.produtos&&m.produtos.preco)||0)+'</option>';}).join('');
+  vQty=1;document.getElementById('v-qn').textContent='1';
+  if(role==='consultora'&&user&&user.id){
+    var r=await db.from('vendas').select('*').eq('consultora_id',user.id).order('data_venda',{ascending:false}).limit(30);
+    var v=r.data||[];
+    document.getElementById('c-hist-list').innerHTML=v.length===0?'<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Sem registros</div></div>':v.map(function(x){return'<div class="li"><div class="li-ico">'+cIco(x.produto_cat)+'</div><div class="li-info"><div class="li-name">'+(x.produto_nome||'—')+(x.quantidade>1?' ×'+x.quantidade:'')+'</div><div class="li-sub">'+fD(x.data_venda)+' · '+(x.cliente||'Cliente')+'</div></div><div class="li-r"><div class="li-price">R$'+fmt(x.valor*x.quantidade)+'</div><span class="badge '+(x.tipo==='venda'?'b-sale':'b-consig')+'" style="font-size:9px;">'+x.tipo+'</span></div></div>';}).join('');
+  }
+}
+function fillVP(){var o=document.getElementById('v-prod').selectedOptions[0];if(o&&o.dataset.p)document.getElementById('v-val').value=o.dataset.p;}
+function adjVQ(d){vQty=Math.max(1,vQty+d);document.getElementById('v-qn').textContent=vQty;}
+async function registrarVenda(){
+  if(role!=='consultora'||!user||!user.id){showToast('Faça login como consultora');return;}
+  var pid=document.getElementById('v-prod').value;if(!pid){showToast('Selecione uma peça');return;}
+  var val=parseFloat(document.getElementById('v-val').value);if(!val||val<=0){showToast('Informe o valor');return;}
+  var o=document.getElementById('v-prod').selectedOptions[0];
+  var r=await db.from('vendas').insert({consultora_id:user.id,produto_id:pid,produto_nome:(o&&o.dataset.n)||'',produto_cat:(o&&o.dataset.c)||'',quantidade:vQty,valor:val,tipo:document.getElementById('v-tipo').value,pagamento:document.getElementById('v-pg').value,cliente:document.getElementById('v-cli').value.trim(),observacao:document.getElementById('v-obs').value.trim(),data_venda:new Date().toISOString()});
+  if(r.error){showToast('Erro: '+r.error.message);return;}
+  ['v-prod','v-val','v-cli','v-obs'].forEach(function(id){document.getElementById(id).value='';});
+  vQty=1;document.getElementById('v-qn').textContent='1';renderCVendas();showToast('Venda registrada 💎');
+}
+
+/* CADASTRO REVENDEDORA */
+function cadNext(s){
+  if(s===1){if(!document.getElementById('cn-nome').value.trim()||!document.getElementById('cn-wpp').value.trim()||!document.getElementById('cn-nasc').value||!document.getElementById('cn-cidade').value.trim()){showToast('Preencha os campos obrigatórios (*)');return;}}
+  if(s===2){if(document.getElementById('cn-cpf').value.replace(/\D/g,'').length<11){showToast('CPF inválido');return;}}
+  document.getElementById('cs'+s).style.display='none';
+  document.getElementById('cs'+(s+1)).style.display='block';
+  document.getElementById('sd'+s).className='sdot';
+  document.getElementById('sd'+(s+1)).className='sdot active';
+  document.getElementById('cad-body').scrollTop=0;
+}
+function cadBack(s){
+  document.getElementById('cs'+s).style.display='none';
+  document.getElementById('cs'+(s-1)).style.display='block';
+  document.getElementById('sd'+s).className='sdot';
+  document.getElementById('sd'+(s-1)).className='sdot active';
+}
+function mCPF(el){var v=el.value.replace(/\D/g,'').slice(0,11);v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');el.value=v;}
+function mCEP(el){var v=el.value.replace(/\D/g,'').slice(0,8);if(v.length>5)v=v.slice(0,5)+'-'+v.slice(5);el.value=v;}
+async function enviarCadastro(){
+  var ocup=document.getElementById('cn-ocup').value;
+  var renda=document.querySelector('input[name="renda"]:checked');
+  var neg=document.querySelector('input[name="neg"]:checked');
+  var termo=document.querySelector('input[name="termo"]:checked');
+  var consent=document.querySelector('input[name="consent"]:checked');
+  if(!ocup||!renda||!neg){showToast('Preencha os campos obrigatórios');return;}
+  if(!consent){showToast('Responda o Consentimento de Dados');return;}
+  if(consent.value==='nao'){
+    document.getElementById('cs3').style.display='none';
+    document.getElementById('cs-ok').innerHTML='<div style="font-size:48px;margin-bottom:16px;">🔒</div><div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--br);margin-bottom:10px;">Cadastro não concluído</div><div style="font-size:14px;color:var(--brl);line-height:1.7;margin-bottom:24px;">É necessário autorizar o uso dos dados para prosseguir com o cadastro. Entre em contato conosco se tiver dúvidas.</div><button class="btn btn-p" onclick="fecharCadastro()">Fechar</button>';
+    document.getElementById('cs-ok').style.display='block';return;
+  }
+  if(!termo){showToast('Responda o Termo de Responsabilidade');return;}
+  if(termo.value==='nao_aceito'){
+    document.getElementById('cs3').style.display='none';
+    document.getElementById('cs-ok').style.display='block';
+    document.getElementById('cs-ok').innerHTML='<div style="font-size:48px;margin-bottom:16px;">❌</div><div style="font-family:\'Playfair Display\',serif;font-size:20px;color:var(--br);margin-bottom:10px;">Cadastro não concluído</div><div style="font-size:14px;color:var(--brl);line-height:1.7;margin-bottom:24px;">Infelizmente não é possível prosseguir sem aceitar o Termo de Responsabilidade. Se tiver dúvidas, entre em contato conosco.</div><button class="btn btn-p" onclick="fecharCadastro()">Fechar</button>';
     return;
   }
-  document.getElementById('login-role-badge').textContent = role === 'gestora' ? '👑 Gestora' : '💎 Consultora';
-  document.getElementById('login-fields-gestora').style.display = role === 'gestora' ? 'block' : 'none';
-  document.getElementById('login-fields-consultora').style.display = role === 'consultora' ? 'block' : 'none';
-  document.getElementById('login-hint').textContent = role === 'gestora' ? 'Acesso exclusivo para a gestora.' : 'Use as credenciais fornecidas pela Talita Kume.';
-  currentRole = role;
-  showScreen('login');
+  var canais=Array.from(document.querySelectorAll('#modal-cad input[type="checkbox"]:checked')).map(function(c){return c.value;}).join(', ');
+  var btn=document.getElementById('btn-env');btn.textContent='Enviando...';btn.disabled=true;
+  var payload={nome:document.getElementById('cn-nome').value.trim(),whatsapp:document.getElementById('cn-wpp').value.trim(),email:document.getElementById('cn-email').value.trim(),data_nasc:document.getElementById('cn-nasc').value,cidade:document.getElementById('cn-cidade').value.trim(),estado:document.getElementById('cn-uf').value,cpf:document.getElementById('cn-cpf').value.trim(),rg:document.getElementById('cn-rg').value.trim(),endereco:document.getElementById('cn-end').value.trim(),cep:document.getElementById('cn-cep').value.trim(),complemento:document.getElementById('cn-comp').value.trim(),referencia:document.getElementById('cn-ref').value.trim(),ocupacao:ocup,renda_faixa:renda.value,negativado:neg.value,exp_vendas:(document.querySelector('input[name="vexp"]:checked')||{}).value||'',empresa_anterior:document.getElementById('cn-emp').value.trim(),canais_venda:canais,como_conheceu:document.getElementById('cn-orig').value,motivo:document.getElementById('cn-mot').value.trim(),status:'pendente',criado_em:new Date().toISOString()};
+  var r=await db.from('cadastros_revendedoras').insert(payload);
+  btn.textContent='✓ Enviar Ficha';btn.disabled=false;
+  if(r.error){var msg='*Nova candidata Revendedora*\n\n👤 *'+payload.nome+'*\n📱 '+payload.whatsapp+'\n📍 '+payload.cidade+'/'+payload.estado+'\n💼 '+payload.ocupacao+'\n💰 Renda: '+payload.renda_faixa+'\n⚠️ Negativado: '+payload.negativado;window.open('https://wa.me/5511943441738?text='+encodeURIComponent(msg),'_blank');}
+  document.getElementById('cs3').style.display='none';
+  document.getElementById('cs-ok').style.display='block';
+  document.getElementById('sd1').className='sdot active';document.getElementById('sd2').className='sdot active';document.getElementById('sd3').className='sdot active';
 }
 
-function goBack() {
-  showScreen('role');
-}
-
-async function loginGestora() {
-  const senha = document.getElementById('login-senha-gestora').value;
-  if (senha !== GESTORA_SENHA) { showToast('Senha incorreta'); return; }
-  currentUser = { nome: 'Talita', role: 'gestora' };
-  localStorage.setItem('tk_session', JSON.stringify({ role: 'gestora', user: currentUser }));
-  await initApp();
-}
-
-async function loginConsultora() {
-  const nome = document.getElementById('login-nome-c').value.trim();
-  const cidade = document.getElementById('login-cidade-c').value.trim();
-  const senha = document.getElementById('login-senha-c').value;
-  if (!nome) { showToast('Digite seu nome'); return; }
-  if (!senha) { showToast('Digite a senha'); return; }
-
-  // Buscar consultora pelo nome + senha
-  const { data, error } = await db.from('consultoras').select('*').ilike('nome', `%${nome}%`).eq('senha', senha).eq('ativa', true).single();
-  if (error || !data) { showToast('Nome ou senha incorretos'); return; }
-
-  currentUser = { id: data.id, nome: data.nome, cidade: data.cidade || cidade };
-  localStorage.setItem('tk_session', JSON.stringify({ role: 'consultora', user: currentUser }));
-  await initApp();
-}
-
-function doLogout() {
-  localStorage.removeItem('tk_session');
-  currentRole = null; currentUser = null;
-  location.reload();
-}
-
-// ═══════════════════════════════════════════════════
-// APP INIT
-// ═══════════════════════════════════════════════════
-async function initApp() {
-  showScreen('app');
-  document.getElementById('hdr-user').textContent = currentUser?.nome || '';
-
-  if (currentRole === 'gestora') {
-    document.getElementById('hdr-role-label').textContent = 'Gestora';
-    document.getElementById('hdr-role-badge').textContent = '👑';
-    document.getElementById('tabs-gestora').style.display = 'flex';
-    document.getElementById('tabs-consultora').style.display = 'none';
-    await loadAllData();
-    goTabG('painel');
-  } else if (currentRole === 'consultora') {
-    document.getElementById('hdr-role-label').textContent = 'Consultora';
-    document.getElementById('hdr-role-badge').textContent = '💎';
-    document.getElementById('tabs-consultora').style.display = 'flex';
-    document.getElementById('tabs-gestora').style.display = 'none';
-    document.getElementById('c-greeting-name').textContent = currentUser.nome.split(' ')[0];
-    await loadAllData();
-    goTabC('painel');
-  } else if (currentRole === 'catalogo') {
-    document.getElementById('hdr-role-label').textContent = 'Catálogo';
-    document.getElementById('hdr-role-badge').textContent = '🛍️';
-    document.getElementById('tabs-consultora').style.display = 'flex';
-    document.getElementById('tabs-gestora').style.display = 'none';
-    // Esconder tabs de painel, maleta e vendas para visitante
-    document.getElementById('tc-painel').style.display = 'none';
-    document.getElementById('tc-maleta').style.display = 'none';
-    document.getElementById('tc-vendas').style.display = 'none';
-    await loadAllData();
-    goTabC('catalogo');
-  }
-}
-
-async function loadAllData() {
-  const [{ data: prods }, { data: consults }, { data: maletas }] = await Promise.all([
-    db.from('produtos').select('*').eq('ativo', true).order('nome'),
-    db.from('consultoras').select('*').eq('ativa', true).order('nome'),
-    db.from('maletas').select('*, produtos(*), consultoras(*)'),
-  ]);
-  allProdutos = prods || [];
-  allConsultoras = consults || [];
-
-  if (currentRole === 'consultora' && currentUser?.id) {
-    maletaItems = (maletas || []).filter(m => m.consultora_id === currentUser.id);
-  } else {
-    maletaItems = maletas || [];
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// NAVEGAÇÃO
-// ═══════════════════════════════════════════════════
-function goTabG(tab) {
-  document.querySelectorAll('.screen[id^="screen-g-"]').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('#tabs-gestora .tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('screen-g-' + tab).classList.add('active');
-  const el = document.getElementById('tg-' + tab);
-  if (el) el.classList.add('active');
-  if (tab === 'painel') renderGPainel();
-  if (tab === 'catalogo') renderGCatalogo();
-  if (tab === 'consultoras') renderGConsultoras();
-  if (tab === 'maletas') renderGMaletas();
-}
-
-function goTabC(tab) {
-  document.querySelectorAll('.screen[id^="screen-c-"]').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('#tabs-consultora .tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('screen-c-' + tab).classList.add('active');
-  const el = document.getElementById('tc-' + tab);
-  if (el) el.classList.add('active');
-  if (tab === 'painel') renderCPainel();
-  if (tab === 'catalogo') renderCCatalogo();
-  if (tab === 'maleta') renderCMaleta();
-  if (tab === 'vendas') renderCVendas();
-}
-
-// ═══════════════════════════════════════════════════
-// GESTORA — PAINEL
-// ═══════════════════════════════════════════════════
-async function renderGPainel() {
-  document.getElementById('gm-produtos').textContent = allProdutos.length;
-  document.getElementById('gm-consultoras').textContent = allConsultoras.length;
-
-  const { data: vendas } = await db.from('vendas').select('*').order('data_venda', { ascending: false }).limit(20);
-  document.getElementById('gm-vendas').textContent = vendas?.length || 0;
-
-  const recent = (vendas || []).slice(0, 5);
-  document.getElementById('g-recent-vendas').innerHTML = recent.length === 0
-    ? '<div style="font-size:13px;color:var(--tk-muted);">Nenhuma venda ainda</div>'
-    : recent.map(v => `<div class="list-item">
-        <div class="item-icon">${catIco(v.produto_cat || '?')}</div>
-        <div class="item-info">
-          <div class="item-name">${v.produto_nome || '—'}</div>
-          <div class="item-sub">${v.cliente || 'Cliente'} · ${fmtD(v.data_venda)}</div>
-        </div>
-        <div class="item-right"><div class="item-price">R$${fmt(v.valor)}</div></div>
-      </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════════
-// GESTORA — CATÁLOGO
-// ═══════════════════════════════════════════════════
-function renderGCatalogo(q = '') {
-  let prods = allProdutos;
-  if (q) prods = prods.filter(p => p.nome.toLowerCase().includes(q.toLowerCase()) || (p.codigo || '').toLowerCase().includes(q.toLowerCase()));
-
-  document.getElementById('g-catalogo-list').innerHTML = prods.length === 0
-    ? '<div class="empty"><div class="empty-ico">💎</div><div class="empty-title">Nenhum produto ainda</div><div class="empty-sub">Toque em + Produto para começar</div></div>'
-    : prods.map(p => `<div class="list-item">
-        ${p.foto_url ? `<img class="item-img" src="${p.foto_url}" onerror="this.style.display='none'"/>` : `<div class="item-icon">${catIco(p.categoria)}</div>`}
-        <div class="item-info">
-          <div class="item-name">${p.nome}</div>
-          <div class="item-sub">${p.codigo || '—'} · ${p.categoria || ''} · ${p.material || ''}</div>
-          ${p.descricao ? `<div style="font-size:11px;color:var(--tk-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">${p.descricao}</div>` : ''}
-        </div>
-        <div class="item-right">
-          <div class="item-price">R$${fmt(p.preco)}</div>
-          <div style="margin-top:6px;display:flex;gap:4px;">
-            <button class="btn btn-sm btn-outline" onclick="editProd('${p.id}')" style="padding:4px 10px;font-size:11px;">✏️</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteProd('${p.id}')" style="padding:4px 10px;font-size:11px;">🗑</button>
-          </div>
-        </div>
-      </div>`).join('');
-}
-
-function openModalProd() {
-  document.getElementById('mprod-title').textContent = 'Novo Produto';
-  document.getElementById('prod-eid').value = '';
-  document.getElementById('prod-nome').value = '';
-  document.getElementById('prod-codigo').value = '';
-  document.getElementById('prod-desc').value = '';
-  document.getElementById('prod-preco').value = '';
-  document.getElementById('prod-custo').value = '';
-  document.getElementById('prod-foto-url').value = '';
-  document.getElementById('foto-preview-img').style.display = 'none';
-  document.getElementById('foto-placeholder').style.display = 'block';
-  fotoBase64 = null;
-  openModal('modal-prod');
-}
-
-function editProd(id) {
-  const p = allProdutos.find(x => x.id === id);
-  if (!p) return;
-  document.getElementById('mprod-title').textContent = 'Editar Produto';
-  document.getElementById('prod-eid').value = id;
-  document.getElementById('prod-nome').value = p.nome;
-  document.getElementById('prod-codigo').value = p.codigo || '';
-  document.getElementById('prod-cat').value = p.categoria || 'Brinco';
-  document.getElementById('prod-mat').value = p.material || 'Ouro 18k';
-  document.getElementById('prod-desc').value = p.descricao || '';
-  document.getElementById('prod-preco').value = p.preco;
-  document.getElementById('prod-custo').value = p.custo || '';
-  document.getElementById('prod-foto-url').value = p.foto_url || '';
-  if (p.foto_url) {
-    document.getElementById('foto-preview-img').src = p.foto_url;
-    document.getElementById('foto-preview-img').style.display = 'block';
-    document.getElementById('foto-placeholder').style.display = 'none';
-  } else {
-    document.getElementById('foto-preview-img').style.display = 'none';
-    document.getElementById('foto-placeholder').style.display = 'block';
-  }
-  fotoBase64 = null;
-  openModal('modal-prod');
-}
-
-async function salvarProduto() {
-  const nome = document.getElementById('prod-nome').value.trim();
-  const codigo = document.getElementById('prod-codigo').value.trim();
-  if (!nome) { showToast('Digite o nome da peça'); return; }
-  if (!codigo) { showToast('Digite o código da peça'); return; }
-
-  let foto_url = document.getElementById('prod-foto-url').value.trim();
-  if (fotoBase64) foto_url = fotoBase64; // base64 direto
-
-  const obj = {
-    nome, codigo,
-    categoria: document.getElementById('prod-cat').value,
-    material: document.getElementById('prod-mat').value,
-    descricao: document.getElementById('prod-desc').value.trim(),
-    preco: parseFloat(document.getElementById('prod-preco').value) || 0,
-    custo: parseFloat(document.getElementById('prod-custo').value) || 0,
-    foto_url: foto_url || null,
-    ativo: true
-  };
-
-  const eid = document.getElementById('prod-eid').value;
-  let res;
-  if (eid) {
-    res = await db.from('produtos').update(obj).eq('id', eid);
-  } else {
-    res = await db.from('produtos').insert(obj);
-  }
-
-  if (res.error) { showToast('Erro: ' + res.error.message); return; }
-
-  await loadAllData();
-  closeModal('modal-prod');
-  renderGCatalogo(document.getElementById('g-cat-search').value);
-  showToast(eid ? 'Produto atualizado ✓' : 'Produto adicionado ✓');
-}
-
-async function deleteProd(id) {
-  if (!confirm('Remover este produto?')) return;
-  await db.from('produtos').update({ ativo: false }).eq('id', id);
-  await loadAllData();
-  renderGCatalogo();
-  showToast('Produto removido');
-}
-
-// FOTO HANDLERS
-function handleFoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { showToast('Foto muito grande (máx 5MB)'); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    fotoBase64 = e.target.result;
-    document.getElementById('foto-preview-img').src = fotoBase64;
-    document.getElementById('foto-preview-img').style.display = 'block';
-    document.getElementById('foto-placeholder').style.display = 'none';
-    document.getElementById('prod-foto-url').value = '';
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleFotoUrl(url) {
-  if (!url) { document.getElementById('foto-preview-img').style.display = 'none'; document.getElementById('foto-placeholder').style.display = 'block'; return; }
-  fotoBase64 = null;
-  document.getElementById('foto-preview-img').src = url;
-  document.getElementById('foto-preview-img').style.display = 'block';
-  document.getElementById('foto-placeholder').style.display = 'none';
-}
-
-// ═══════════════════════════════════════════════════
-// GESTORA — CONSULTORAS
-// ═══════════════════════════════════════════════════
-function renderGConsultoras() {
-  document.getElementById('g-consultoras-list').innerHTML = allConsultoras.length === 0
-    ? '<div class="empty"><div class="empty-ico">👥</div><div class="empty-title">Nenhuma consultora</div><div class="empty-sub">Toque em + Nova para cadastrar</div></div>'
-    : allConsultoras.map(c => {
-        const maleta = maletaItems.filter(m => m.consultora_id === c.id);
-        return `<div class="consultora-card">
-          <div class="consultora-card-hdr">
-            <div class="consultora-av">${c.nome.charAt(0)}</div>
-            <div class="consultora-info">
-              <div class="consultora-name">${c.nome}</div>
-              <div class="consultora-sub">${c.cidade || ''} ${c.telefone ? '· ' + c.telefone : ''}</div>
-            </div>
-            <div style="display:flex;gap:6px;">
-              <button class="btn btn-sm btn-outline" onclick="editConsultora('${c.id}')" style="padding:4px 10px;font-size:11px;">✏️</button>
-            </div>
-          </div>
-          <div class="consultora-stats">
-            <div class="c-stat"><div class="c-stat-val">${maleta.reduce((a,m) => a + (m.quantidade || 0), 0)}</div><div class="c-stat-label">Na maleta</div></div>
-            <div class="c-stat"><div class="c-stat-val">—</div><div class="c-stat-label">Vendas</div></div>
-            <div class="c-stat"><div class="c-stat-val">—</div><div class="c-stat-label">Total R$</div></div>
-          </div>
-        </div>`;
-      }).join('');
-}
-
-function openModalConsultora() {
-  document.getElementById('mconsultora-title').textContent = 'Nova Consultora';
-  document.getElementById('c-eid').value = '';
-  document.getElementById('c-nome').value = '';
-  document.getElementById('c-cidade').value = '';
-  document.getElementById('c-tel').value = '';
-  document.getElementById('c-senha').value = '';
-  openModal('modal-consultora');
-}
-
-function editConsultora(id) {
-  const c = allConsultoras.find(x => x.id === id);
-  if (!c) return;
-  document.getElementById('mconsultora-title').textContent = 'Editar Consultora';
-  document.getElementById('c-eid').value = id;
-  document.getElementById('c-nome').value = c.nome;
-  document.getElementById('c-cidade').value = c.cidade || '';
-  document.getElementById('c-tel').value = c.telefone || '';
-  document.getElementById('c-senha').value = c.senha || '';
-  openModal('modal-consultora');
-}
-
-async function salvarConsultora() {
-  const nome = document.getElementById('c-nome').value.trim();
-  const senha = document.getElementById('c-senha').value.trim();
-  if (!nome) { showToast('Digite o nome'); return; }
-  if (!senha) { showToast('Digite uma senha para ela'); return; }
-
-  const obj = { nome, cidade: document.getElementById('c-cidade').value.trim(), telefone: document.getElementById('c-tel').value.trim(), senha, ativa: true };
-  const eid = document.getElementById('c-eid').value;
-  let res;
-  if (eid) { res = await db.from('consultoras').update(obj).eq('id', eid); }
-  else { res = await db.from('consultoras').insert(obj); }
-
-  if (res.error) { showToast('Erro: ' + res.error.message); return; }
-  await loadAllData();
-  closeModal('modal-consultora');
-  renderGConsultoras();
-  showToast(eid ? 'Consultora atualizada ✓' : 'Consultora cadastrada ✓');
-}
-
-// ═══════════════════════════════════════════════════
-// GESTORA — MALETAS
-// ═══════════════════════════════════════════════════
-function renderGMaletas() {
-  // Preencher selects
-  const selC = document.getElementById('mal-consultora');
-  selC.innerHTML = '<option value="">Selecione...</option>' + allConsultoras.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-  const selP = document.getElementById('mal-produto');
-  selP.innerHTML = '<option value="">Selecione...</option>' + allProdutos.map(p => `<option value="${p.id}">${p.nome} (${p.codigo || 'sem código'})</option>`).join('');
-
-  renderMaletaList();
-}
-
-function renderMaletaList() {
-  const list = maletaItems;
-  document.getElementById('g-maletas-list').innerHTML = list.length === 0
-    ? '<div class="empty"><div class="empty-ico">📦</div><div class="empty-title">Nenhuma maleta despachada</div></div>'
-    : list.map(m => `<div class="list-item">
-        ${m.produtos?.foto_url ? `<img class="item-img" src="${m.produtos.foto_url}"/>` : `<div class="item-icon">${catIco(m.produtos?.categoria)}</div>`}
-        <div class="item-info">
-          <div class="item-name">${m.produtos?.nome || '—'}</div>
-          <div class="item-sub">${m.consultoras?.nome || '—'} · ${fmtD(m.data_despacho)}</div>
-        </div>
-        <div class="item-right">
-          <span class="badge badge-gold">×${m.quantidade}</span>
-          <div style="margin-top:6px;"><button class="btn btn-sm btn-danger" onclick="removerMaleta('${m.id}')" style="padding:4px 10px;font-size:11px;">🗑</button></div>
-        </div>
-      </div>`).join('');
-}
-
-function adjMalQty(d) { malQty = Math.max(1, malQty + d); document.getElementById('mal-qty-num').textContent = malQty; }
-
-async function despacharMaleta() {
-  const cid = document.getElementById('mal-consultora').value;
-  const pid = document.getElementById('mal-produto').value;
-  if (!cid) { showToast('Selecione a consultora'); return; }
-  if (!pid) { showToast('Selecione o produto'); return; }
-
-  const { error } = await db.from('maletas').insert({ consultora_id: cid, produto_id: pid, quantidade: malQty });
-  if (error) { showToast('Erro: ' + error.message); return; }
-
-  await loadAllData();
-  malQty = 1; document.getElementById('mal-qty-num').textContent = '1';
-  renderMaletaList();
-  showToast('Maleta despachada ✓');
-}
-
-async function removerMaleta(id) {
-  if (!confirm('Remover item da maleta?')) return;
-  await db.from('maletas').delete().eq('id', id);
-  await loadAllData();
-  renderMaletaList();
-  showToast('Removido');
-}
-
-// ═══════════════════════════════════════════════════
-// CONSULTORA — PAINEL
-// ═══════════════════════════════════════════════════
-async function renderCPainel() {
-  const qtdMaleta = maletaItems.reduce((a, m) => a + (m.quantidade || 0), 0);
-  document.getElementById('cm-maleta').textContent = qtdMaleta;
-
-  if (currentRole === 'consultora' && currentUser?.id) {
-    const { data: vendas } = await db.from('vendas').select('*').eq('consultora_id', currentUser.id).order('data_venda', { ascending: false });
-    const total = (vendas || []).reduce((a, v) => a + (v.valor * v.quantidade), 0);
-    document.getElementById('cm-vendas').textContent = vendas?.length || 0;
-    document.getElementById('cm-total').textContent = fmt(total);
-
-    document.getElementById('c-recent-vendas').innerHTML = (vendas || []).slice(0, 5).length === 0
-      ? '<div style="font-size:13px;color:var(--tk-muted);">Nenhuma venda ainda</div>'
-      : (vendas || []).slice(0, 5).map(v => `<div class="list-item">
-          <div class="item-icon">${catIco(v.produto_cat || '')}</div>
-          <div class="item-info">
-            <div class="item-name">${v.produto_nome || '—'}</div>
-            <div class="item-sub">${v.cliente || 'Cliente'} · ${fmtD(v.data_venda)}</div>
-          </div>
-          <div class="item-right"><div class="item-price">R$${fmt(v.valor)}</div></div>
-        </div>`).join('');
-  } else {
-    document.getElementById('cm-vendas').textContent = '—';
-    document.getElementById('cm-total').textContent = '—';
-    document.getElementById('c-recent-vendas').innerHTML = '<div style="font-size:13px;color:var(--tk-muted);">Faça login como consultora para ver suas vendas</div>';
-  }
-}
-
-// ═══════════════════════════════════════════════════
-// CONSULTORA — CATÁLOGO
-// ═══════════════════════════════════════════════════
-function renderCCatalogo(q = '', catFilter = '') {
-  let prods = allProdutos;
-  if (q) prods = prods.filter(p => p.nome.toLowerCase().includes(q.toLowerCase()) || (p.codigo || '').toLowerCase().includes(q.toLowerCase()));
-  if (catFilter) prods = prods.filter(p => p.categoria === catFilter);
-
-  // Pills de categoria (ordem fixa)
-  const cats = ['Colar','Pulseira','Brinco','Tornozeleira','Anel','Conjunto','Outro'];
-  document.getElementById('c-cat-pills').innerHTML =
-    `<div class="tab-pill ${!catFilter ? 'active' : ''}" onclick="renderCCatalogo('${q}', '')">Todos</div>` +
-    cats.map(c => `<div class="tab-pill ${catFilter === c ? 'active' : ''}" onclick="renderCCatalogo('${q}', '${c}')">${c}</div>`).join('');
-
-  document.getElementById('c-catalogo-grid').innerHTML = prods.length === 0
-    ? '<div class="empty" style="grid-column:span 2"><div class="empty-ico">💎</div><div class="empty-title">Nenhum produto</div></div>'
-    : prods.map(p => `
-      <div class="prod-card" onclick="openProdDetail('${p.id}')">
-        <div class="prod-card-img">
-          ${p.foto_url ? `<img src="${p.foto_url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='${catIco(p.categoria)}'"/>` : catIco(p.categoria)}
-        </div>
-        <div class="prod-card-body">
-          <div class="prod-card-name">${p.nome}</div>
-          <div class="prod-card-code">${p.codigo || ''}</div>
-          <div class="prod-card-price">R$ ${fmt(p.preco)}</div>
-        </div>
-      </div>`).join('');
-}
-
-function openProdDetail(id) {
-  const p = allProdutos.find(x => x.id === id);
-  if (!p) return;
-
-  const whatsLink = `https://wa.me/5511943441738?text=Olá! Vi o ${p.nome} (${p.codigo}) no catálogo e tenho interesse. Valor R$${fmt(p.preco)}`;
-
-  document.getElementById('prod-detail-content').innerHTML = `
-    <div class="prod-detail-img">
-      ${p.foto_url ? `<img src="${p.foto_url}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--radius);"/>` : catIco(p.categoria)}
-    </div>
-    <div class="prod-detail-name">${p.nome}</div>
-    <div class="prod-detail-code">${p.codigo || ''}</div>
-    <div class="prod-detail-price">R$ ${fmtFull(p.preco)}</div>
-    <div class="prod-detail-tags">
-      ${p.categoria ? `<span class="prod-tag">${p.categoria}</span>` : ''}
-      ${p.material ? `<span class="prod-tag">${p.material}</span>` : ''}
-    </div>
-    ${p.descricao ? `<div class="prod-detail-desc">${p.descricao}</div>` : ''}
-    <div class="share-btns">
-      <button class="share-btn" style="background:#25D366;color:white;" onclick="window.open('${whatsLink}','_blank')">
-        💬 WhatsApp
-      </button>
-      <button class="share-btn btn-outline" onclick="copiarLink('${p.id}')">
-        🔗 Copiar link
-      </button>
-    </div>
-    ${currentRole === 'consultora' ? `
-    <button class="btn btn-primary" style="margin-top:12px;" onclick="closeModal('modal-prod-detail');goTabC('vendas');">
-      💰 Registrar venda desta peça
-    </button>` : ''}
-  `;
-  openModal('modal-prod-detail');
-}
-
-function copiarLink(prodId) {
-  const url = `${window.location.href.split('?')[0]}?prod=${prodId}`;
-  navigator.clipboard?.writeText(url).then(() => showToast('Link copiado! ✓')).catch(() => showToast('Copie da barra de endereço'));
-}
-
-// ═══════════════════════════════════════════════════
-// CONSULTORA — MALETA
-// ═══════════════════════════════════════════════════
-function renderCMaleta() {
-  document.getElementById('c-maleta-list').innerHTML = maletaItems.length === 0
-    ? '<div class="empty"><div class="empty-ico">🧳</div><div class="empty-title">Maleta vazia</div><div class="empty-sub">Aguarde o despacho da gestora</div></div>'
-    : maletaItems.map(m => `<div class="list-item">
-        ${m.produtos?.foto_url ? `<img class="item-img" src="${m.produtos.foto_url}" onerror="this.style.display='none'"/>` : `<div class="item-icon">${catIco(m.produtos?.categoria)}</div>`}
-        <div class="item-info">
-          <div class="item-name">${m.produtos?.nome || '—'}</div>
-          <div class="item-sub">${m.produtos?.codigo || ''} · ${m.produtos?.material || ''}</div>
-        </div>
-        <div class="item-right">
-          <div class="item-price">R$${fmt(m.produtos?.preco || 0)}</div>
-          <span class="badge badge-gold" style="margin-top:4px;">×${m.quantidade}</span>
-        </div>
-      </div>`).join('');
-}
-
-// ═══════════════════════════════════════════════════
-// CONSULTORA — VENDAS
-// ═══════════════════════════════════════════════════
-async function renderCVendas() {
-  // Preencher select de produtos da maleta
-  const sel = document.getElementById('v-produto');
-  sel.innerHTML = '<option value="">Selecione...</option>' +
-    maletaItems.map(m => `<option value="${m.produto_id}" data-preco="${m.produtos?.preco || 0}" data-nome="${m.produtos?.nome}" data-cat="${m.produtos?.categoria}">${m.produtos?.nome} (${m.produtos?.codigo || '—'}) · R$${fmt(m.produtos?.preco || 0)}</option>`).join('');
-
-  vendaQty = 1; document.getElementById('v-qty-num').textContent = '1';
-
-  if (currentRole === 'consultora' && currentUser?.id) {
-    const { data: vendas } = await db.from('vendas').select('*').eq('consultora_id', currentUser.id).order('data_venda', { ascending: false }).limit(30);
-    document.getElementById('c-historico-list').innerHTML = (vendas || []).length === 0
-      ? '<div class="empty"><div class="empty-ico">📋</div><div class="empty-title">Sem registros</div></div>'
-      : (vendas || []).map(v => `<div class="list-item">
-          <div class="item-icon">${catIco(v.produto_cat || '')}</div>
-          <div class="item-info">
-            <div class="item-name">${v.produto_nome || '—'} ${v.quantidade > 1 ? '×' + v.quantidade : ''}</div>
-            <div class="item-sub">${fmtD(v.data_venda)} · ${v.cliente || 'Cliente'} · ${v.pagamento || ''}</div>
-          </div>
-          <div class="item-right">
-            <div class="item-price">R$${fmt(v.valor * v.quantidade)}</div>
-            <span class="badge ${v.tipo === 'venda' ? 'badge-sale' : 'badge-consig'}" style="font-size:9px;">${v.tipo}</span>
-          </div>
-        </div>`).join('');
-  }
-}
-
-function fillVendaPrice() {
-  const opt = document.getElementById('v-produto').selectedOptions[0];
-  if (opt?.dataset.preco) document.getElementById('v-valor').value = opt.dataset.preco;
-}
-
-function adjVQty(d) { vendaQty = Math.max(1, vendaQty + d); document.getElementById('v-qty-num').textContent = vendaQty; }
-
-async function registrarVenda() {
-  if (currentRole !== 'consultora' || !currentUser?.id) { showToast('Faça login como consultora'); return; }
-  const prodId = document.getElementById('v-produto').value;
-  if (!prodId) { showToast('Selecione uma peça'); return; }
-  const valor = parseFloat(document.getElementById('v-valor').value);
-  if (!valor || valor <= 0) { showToast('Informe o valor'); return; }
-  const opt = document.getElementById('v-produto').selectedOptions[0];
-
-  const { error } = await db.from('vendas').insert({
-    consultora_id: currentUser.id,
-    produto_id: prodId,
-    produto_nome: opt?.dataset.nome || '',
-    produto_cat: opt?.dataset.cat || '',
-    quantidade: vendaQty, valor,
-    tipo: document.getElementById('v-tipo').value,
-    pagamento: document.getElementById('v-pgto').value,
-    cliente: document.getElementById('v-cliente').value.trim(),
-    observacao: document.getElementById('v-obs').value.trim(),
-    data_venda: new Date().toISOString()
-  });
-
-  if (error) { showToast('Erro: ' + error.message); return; }
-
-  ['v-produto', 'v-valor', 'v-cliente', 'v-obs'].forEach(id => document.getElementById(id).value = '');
-  vendaQty = 1; document.getElementById('v-qty-num').textContent = '1';
-  renderCVendas();
-  showToast('Venda registrada 💎');
-}
-
-// ═══════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════
-function catIco(cat) { return { Brinco: '◈', Colar: '◯', Anel: '◎', Pulseira: '◇', Conjunto: '✦', Outro: '·' }[cat] || '💎'; }
-function fmt(n) { return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : (n || 0).toFixed(0); }
-function fmtFull(n) { return (n || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 }); }
-function fmtD(iso) { return iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '—'; }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
-
-let toastT;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2400);
-}
+/* HELPERS */
+function cIco(c){return{'Brinco':'◈','Colar':'◯','Anel':'◎','Pulseira':'◇','Conjunto':'✦','Outro':'·'}[c]||'💎';}
+function fmt(n){return n>=1000?(n/1000).toFixed(1)+'k':(n||0).toFixed(0);}
+function fFull(n){return'R$ '+(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2});}
+function fD(iso){return iso?new Date(iso).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'—';}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===o)o.classList.remove('open');});});
+var tT;
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tT);tT=setTimeout(function(){t.classList.remove('show');},2400);}
 </script>
 </body>
 </html>
